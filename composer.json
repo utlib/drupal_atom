@@ -1,0 +1,14 @@
+{
+    "name": "central-library-services/drupal_atom",
+    "type": "drupal-custom-module",
+    "version": "v0.0.1",
+    "description": "This module is integrate Atom Rest API and feed to drupal",
+    "keywords": [
+    ],
+    "homepage": "https://www.drupal.org/project/atom",
+    "support": {
+        "issues": "https://www.drupal.org/project/issues/atom",
+        "source": "http://cgit.drupalcode.org/atom"
+    },
+    "minimum-stability": "dev"
+}

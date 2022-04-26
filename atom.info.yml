@@ -1,0 +1,7 @@
+name: 'Atom Integration'
+type: module
+description: 'This module is integrate Atom REST API and feed to drupal'
+core_version_requirement: '^8.8 || ^9'
+package: DSU
+dependencies:
+  - menu_ui

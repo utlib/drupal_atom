@@ -1,0 +1,7 @@
+services:
+  logger.channel.atom:
+    parent: logger.channel_base
+    arguments: ['atom']
+  atom.download:
+    class: Drupal\atom\HoldingDownloadService
+    arguments: []

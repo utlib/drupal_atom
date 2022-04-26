@@ -1,0 +1,9 @@
+atom.atom_api_config_form:
+  path: '/admin/config/atom'
+  defaults:
+    _form: '\Drupal\atom\Form\AtomAPIConfigForm'
+    _title: 'Atom Integration'
+  requirements:
+    _permission: 'access administration pages'
+  options:
+    _admin_route: TRUE

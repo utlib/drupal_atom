@@ -1,0 +1,30 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_repository
+    - node.type.holding
+    - taxonomy.vocabulary.holding_repository
+_core:
+  default_config_hash: xDaT8HX9S-6TOclUK4vAKYre5M0n0pzUxjgLnlwDF_Y
+id: node.holding.field_repository
+field_name: field_repository
+entity_type: node
+bundle: holding
+label: Repository
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:taxonomy_term'
+  handler_settings:
+    target_bundles:
+      holding_repository: holding_repository
+    sort:
+      field: name
+      direction: asc
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

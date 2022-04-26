@@ -1,0 +1,20 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_atom_id
+    - node.type.holding
+_core:
+  default_config_hash: ywVRAih97h97AtBniz-1bUNWr0_MaUzeHvnaJHKYAZE
+id: node.holding.field_atom_id
+field_name: field_atom_id
+entity_type: node
+bundle: holding
+label: 'Atom ID'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

@@ -1,0 +1,20 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_date_range
+    - node.type.holding
+_core:
+  default_config_hash: GbCKl-S4nubLDeaw13Weqf2lgiV8ZdOq4ZY9P7kZ-ug
+id: node.holding.field_date_range
+field_name: field_date_range
+entity_type: node
+bundle: holding
+label: 'Date Range'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

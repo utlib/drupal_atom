@@ -1,0 +1,7 @@
+langcode: en
+status: true
+dependencies: {  }
+name: 'Holding Repository'
+vid: holding_repository
+description: ''
+weight: 0

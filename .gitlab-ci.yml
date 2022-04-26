@@ -1,0 +1,15 @@
+include:
+    - project: 'utl-its/gitlab-ci-templates'
+      file: '/templates/git-tag.gitlab-ci.yml'
+
+stages:
+    - tag
+
+tag release:
+    extends: .git-tag
+    stage: tag
+    variables:
+        VERSION_FILE: "composer.json"
+        SKIP_BUMP: ${SKIP_VERSION_BUMP_ON_OFF}
+    only:
+        - main

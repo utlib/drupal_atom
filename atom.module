@@ -1,0 +1,143 @@
+<?php
+
+/**
+ * @file
+ * Contains atom.module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+function atom_page_attachments(array &$attachments) {
+  $attachments['#attached']['library'][] = 'atom/atom';
+}
+
+/**
+ * Implements hook_help().
+ */
+function atom_help($route_name, RouteMatchInterface $route_match)
+{
+    switch ($route_name) {
+        // Main module help for the atom module.
+        case 'help.page.atom':
+            $output = '';
+            $output .= '<h3>' . t('About') . '</h3>';
+            $output .= '<p>' . t('This module integrates Atom REST API and feed to drupal nodes Holdings') . '</p>';
+            return $output;
+
+        default:
+    }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function atom_theme()
+{
+    return [
+        'atom' => [
+            'render element' => 'children',
+        ],
+    ];
+}
+
+/**
+ *  Implement hook_cron
+ */
+function atom_cron()
+{
+   startDownloadAtomHoldings();
+
+}
+
+
+/**
+ * Trigger download Events process
+ */
+function startDownloadAtomHoldings() {
+    $config = \Drupal::config('atom.atomapiconfig');
+    $service = \Drupal::service('atom.download');
+  
+    // set all event exist to pasted then turn on any event downlaodeable from Libcal will be turn off
+    $service->updatePastFieldHoldingNode(true);
+  
+    // Download events regards to the calenedar id(s)
+    if (!empty($config->get('atom-repoid'))) {
+      $result = $service->get();
+      $service->atomHoldingToNode($result);
+    }
+  
+  }
+  
+
+/**
+ * Generate Path Alias for Holding node only
+ * @param $node
+ */
+function generateHoldingAlias($node)
+{
+    $tag = "/holdings/" . createSlug($node->title->value);
+    if (!\Drupal::service('path_alias.repository')->lookupByAlias($tag, 'en')) {
+        //$path = \Drupal::service('path_alias.repository')->save("/node/" . $node->id(), $tag, "en");
+        $path_alias = \Drupal::entityTypeManager()->getStorage('path_alias')->create([
+            'path' => "/node/" . $node->id(),
+            'langcode' => "en",
+        ]);
+        $path_alias->save();
+
+    }
+}
+
+/**
+ * Implements hook_insert().
+ */
+function atom_entity_insert(\Drupal\Core\Entity\EntityInterface $node)
+{
+    // Set the URL alias
+    //if (get_class($node) == 'Drupal\node\Entity\Node') {
+    if ($node->getEntityType()->id() == 'node' && in_array($node->getType(), ['holding'])) {
+        generateHoldingAlias($node);
+
+        // trigger email sending action.
+        $action = \Drupal::entityTypeManager()
+          ->getStorage('action')
+          ->load('send_email');
+
+        if ($action) {
+          $action->execute([$node]);
+        }
+    }
+}
+
+function atom_entity_update(\Drupal\Core\Entity\EntityInterface $node)
+{
+    // Set the URL alias
+    //if (get_class($node) == 'Drupal\node\Entity\Node') {
+    if ($node->getEntityType()->id() == 'node' && in_array($node->getType(), ['holding'])) {
+        generateHoldingAlias($node);
+    }
+}
+
+/**
+ * Debug function: display any variable to error log
+ *
+ * @param $thing
+ */
+if (!function_exists('logging')) {
+    function print_log($thing)
+    {
+        error_log(print_r($thing, true), 0);
+    }
+
+}
+/**
+ * Debug function: display any variable to current webpage
+ * @param $thing
+ */
+if (!function_exists('logging')) {
+    function logging($thing)
+    {
+        echo "<pre>";
+        print_r($thing);
+        echo "</pre>";
+    }
+}

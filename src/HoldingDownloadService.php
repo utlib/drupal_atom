@@ -24,28 +24,33 @@ class HoldingDownloadService implements HoldingDownloadServiceInterface
 
     
 
-    public function callATOMServer($param = null)
+    public function callATOMServer($repo_id, $param = null)
 
     {
 
         $config = \Drupal::config('atom.atomapiconfig');
         try {
           if (empty($param)) {
-                $response = \Drupal::httpClient()->request('GET', $config->get('host')."/index.php/api/informationobjects?sortDir=asc&sort=alphabetic&page=1&sq0=&sf0=&repos=".$config->get('atom-repoid')."findingAidStatus=&topLod=1&rangeType=inclusive", 
+                if ($repo_id != -1) {
+                    $request_url = $config->get('host')."/index.php/api/informationobjects?sortDir=asc&sort=alphabetic&sq0=&sf0=&repos=".$repo_id."&findingAidStatus=&topLod=1&rangeType=inclusive";
+                } else {
+                    $request_url = $config->get('host')."/index.php/api/informationobjects?sortDir=asc&sort=alphabetic&sq0=&sf0=&findingAidStatus=&topLod=1&rangeType=inclusive";
+                }
+                $response = \Drupal::httpClient()->request('GET', $request_url, 
                 [ 
                     'headers' => [ 
                     'REST-API-Key' => $config->get("atom-api-key")]
                 ]
                 );
                 
-            } else {
-                $response = \Drupal::httpClient()->request('GET', $config->get('host')."/index.php/api/informationobjects/".$param, 
-                [ 
-                    'headers' => [ 
-                    'REST-API-Key' => $config->get("atom-api-key")]
-                ]
-                );
-            }
+        } else {
+            $response = \Drupal::httpClient()->request('GET', $config->get('host')."/index.php/api/informationobjects/".$param, 
+            [ 
+                'headers' => [ 
+                'REST-API-Key' => $config->get("atom-api-key")]
+            ]
+            );
+        }
         return json_decode((string)$response->getBody());
         } catch (RequestException $e) {
             print_r($e->getMessage());
@@ -53,12 +58,12 @@ class HoldingDownloadService implements HoldingDownloadServiceInterface
         }
     }
 
-    public function get($params = null)
+    public function get($repo_id = null, $params = null)
     {
         $config = \Drupal::config('atom.atomapiconfig');
 
         try {
-            $contents = $this->callATOMServer($params);
+            $contents = $this->callATOMServer($repo_id, $params);
         } catch (RequestException $e) {
             print_log($e->getMessage());
             return null;
@@ -122,7 +127,7 @@ class HoldingDownloadService implements HoldingDownloadServiceInterface
      */
     public function createNewHoldingNode($holding)
     {   
-        $detailedHoldingInfo = $this->get($holding);
+        $detailedHoldingInfo = $this->get(null, $holding);
 
         $scope_and_content = !empty($detailedHoldingInfo->scope_and_content) ?  $detailedHoldingInfo->scope_and_content: '';
 
@@ -210,25 +215,66 @@ class HoldingDownloadService implements HoldingDownloadServiceInterface
      * @param $nids
      * @param $holding
      */
-    public function updateHoldingtNode($nids, $holding)
+    public function updateHoldingNode($nids, $holding)
     {
+        $detailedHoldingInfo = $this->get(null, $holding);
+
+        $scope_and_content = !empty($detailedHoldingInfo->scope_and_content) ?  $detailedHoldingInfo->scope_and_content: '';
+
+
+        if ($tid_repository = $this->getTidByName($detailedHoldingInfo->repository, 'holding_repository')) {
+            $repository_term = Term::load($tid_repository);
+        } else {
+            $term_create = Term::create(array('name' => $detailedHoldingInfo->repository, 'vid' => 'holding_repository' ))->save();
+            if ($tid_repository = $this->getTidByName($detailedHoldingInfo->repository, 'holding_repository')) {
+                $repository_term = Term::load($tid_repository);
+            }
+        }
+
+        if ($tid_level_of_description = $this->getTidByName($detailedHoldingInfo->level_of_description, 'holding_level_of_description')) {
+            $level_of_description_term = Term::load($tid_level_of_description);
+        } else {
+            $term_create = Term::create(array('name' => $detailedHoldingInfo->level_of_description, 'vid' => 'holding_level_of_description' ))->save();
+            if ($tid_level_of_description = $this->getTidByName($detailedHoldingInfo->level_of_description, 'holding_level_of_description')) {
+                $level_of_description_term = Term::load($tid_level_of_description);
+            }
+        }
+
+        $creators = $detailedHoldingInfo->creators;
+
+        $creators_array = array();
+
+        foreach ($creators as $creator) {
+            $creator_name = $creator->authotized_form_of_name;
+            if ($tid_creator = $this->getTidByName($creator_name, 'holding_creators')) {
+                $creator_term = Term::load($tid_creator);
+            } else {
+                $term_create = Term::create(array('name' => $creator_name, 'vid' => 'holding_creators' ))->save();
+                if ($tid_creator = $this->getTidByName($creator_name, 'holding_creators')) {
+                    $creator_term = Term::load($tid_creator);
+                }
+            }
+            array_push($creators_array, $creator_term);
+        }
+        
 
         // update existing Holding node
         $holdingNode = Node::load(array_values($nids)[0]);
         if (isset($holdingNode)) {
             $holdingNode->set('changed', time());
             // The user ID.
-            $holdingNode->set('title', $holding->title);
+            $holdingNode->set('title', $detailedHoldingInfo->title);
             $holdingNode->set('body', [
-                'summary' => substr(strip_tags($holding->description), 0, 100),
-                'value' => str_replace("<p>&nbsp;</p>", "", $holding->description),
+                'summary' => substr(strip_tags($scope_and_content), 0, 100),
+                'value' => str_replace("<p>&nbsp;</p>", "", $scope_and_content),
                 'format' => 'full_html'
             ]);
             $holdingNode->set('field_date_range', $daterange);
-            $holdingNode->set('field_creator', $creator);
-            $holdingNode->set('field_reference_code', $holding->id); // need to make sure it's unique
-            $holdingNode->set('field_repository', $repository);
-            
+            $holdingNode->set('field_creator', $creators_array);
+            $holdingNode->set('field_reference_code', !empty($detailedHoldingInfo->reference_code) ? $detailedHoldingInfo->reference_code: ''); // need to make sure it's unique
+            $holdingNode->set('field_repository', $repository_term );
+            $holdingNode->set('field_level_of_description', $level_of_description_term);
+            $holdingNode->set('field_atom_id', $holding);
 
             $holdingNode->save();
         }

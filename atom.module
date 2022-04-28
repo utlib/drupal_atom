@@ -62,8 +62,17 @@ function startDownloadAtomHoldings() {
   
     // Download events regards to the calenedar id(s)
     if (!empty($config->get('atom-repoid'))) {
-      $result = $service->get();
-      $service->atomHoldingToNode($result);
+        $repoId = $config->get('atom-repoid');
+        if (strpos($repoId, ',') !== false) {
+            $repoId_list = explode(',', $repoId);
+            foreach ($repoId_list as $repo_id) {
+                $result = $service->get($repo_id, null);
+                $service->atomHoldingToNode($result);
+            }
+        } else {
+            $result = $service->get($repoId, null);
+            $service->atomHoldingToNode($result);
+        }
     }
   
   }

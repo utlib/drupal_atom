@@ -1,7 +1,7 @@
 {
     "name": "central-library-services/drupal_atom",
     "type": "drupal-custom-module",
-    "version": "v0.0.1",
+    "version": "v0.0.2",
     "description": "This module is integrate Atom Rest API and feed to drupal",
     "keywords": [
     ],

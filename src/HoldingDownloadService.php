@@ -29,6 +29,7 @@ class HoldingDownloadService implements HoldingDownloadServiceInterface
     {
 
         $config = \Drupal::config('atom.atomapiconfig');
+
         try {
           if (empty($param)) {
                 if ($repo_id != -1) {
@@ -42,6 +43,30 @@ class HoldingDownloadService implements HoldingDownloadServiceInterface
                     'REST-API-Key' => $config->get("atom-api-key")]
                 ]
                 );
+
+                $initial_call = json_decode((string)$response->getBody());
+                $total_pages = intdiv($initial_call->total, 50);
+
+                $result_array = array();
+
+                for ($i = 0; $i <= $total_pages; $i++) {
+                    $skip_val = $i * 50;
+                    if ($repo_id != -1) {
+                        $request_url = $config->get('host')."/index.php/api/informationobjects?sortDir=asc&sort=alphabetic&sq0=&sf0=&repos=".$repo_id."&findingAidStatus=&topLod=1&rangeType=inclusive&skip=".$skip_val;
+                    } else {
+                        $request_url = $config->get('host')."/index.php/api/informationobjects?sortDir=asc&sort=alphabetic&sq0=&sf0=&findingAidStatus=&topLod=1&rangeType=inclusive&skip=".$skip_val;
+                    }
+                    $response = \Drupal::httpClient()->request('GET', $request_url, 
+                    [ 
+                        'headers' => [ 
+                        'REST-API-Key' => $config->get("atom-api-key")]
+                    ]
+                    );
+
+                    $current_page = json_decode((string)$response->getBody());
+                    $result_array = array_merge($result_array, $current_page->results);
+                }
+                return $result_array;
                 
         } else {
             $response = \Drupal::httpClient()->request('GET', $config->get('host')."/index.php/api/informationobjects/".$param, 
@@ -76,7 +101,7 @@ class HoldingDownloadService implements HoldingDownloadServiceInterface
      */
     public function atomHoldingToNode($holdings)
     {
-        foreach ($holdings->results as $holding) {
+        foreach ($holdings as $holding) {
             $holding_id = $holding->slug;
             $nids = $this->queryHoldingNode($holding_id);
             if (count($nids) <= 0) {
@@ -156,10 +181,15 @@ class HoldingDownloadService implements HoldingDownloadServiceInterface
 
         foreach ($creators as $creator) {
             $creator_name = $creator->authotized_form_of_name;
+            $history = $creator->history;
             if ($tid_creator = $this->getTidByName($creator_name, 'holding_creators')) {
                 $creator_term = Term::load($tid_creator);
+                //update description (history), and dates of existence
+                $creator_term->field_date_of_existence->setValue($creator->dates_of_existence);
+                $creator_term->description->setValue($history);
+                $creator_term->save();
             } else {
-                $term_create = Term::create(array('name' => $creator_name, 'vid' => 'holding_creators' ))->save();
+                $term_create = Term::create(array('name' => $creator_name, 'vid' => 'holding_creators', 'field_date_of_existence' => $creator->dates_of_existence, 'description'  => array('value' => $history,'format' => 'full_html') ))->save();
                 if ($tid_creator = $this->getTidByName($creator_name, 'holding_creators')) {
                     $creator_term = Term::load($tid_creator);
                 }
@@ -246,10 +276,16 @@ class HoldingDownloadService implements HoldingDownloadServiceInterface
 
         foreach ($creators as $creator) {
             $creator_name = $creator->authotized_form_of_name;
+            $history = $creator->history;
             if ($tid_creator = $this->getTidByName($creator_name, 'holding_creators')) {
                 $creator_term = Term::load($tid_creator);
+                //update description (history), and dates of existence
+                $creator_term->field_date_of_existence->setValue($creator->dates_of_existence);
+                $creator_term->description->setValue($history);
+                $creator_term->save();
+
             } else {
-                $term_create = Term::create(array('name' => $creator_name, 'vid' => 'holding_creators' ))->save();
+                $term_create = Term::create(array('name' => $creator_name, 'vid' => 'holding_creators','field_date_of_existence' => $creator->dates_of_existence, 'description'  => array('value' => $history,'format' => 'full_html')))->save();
                 if ($tid_creator = $this->getTidByName($creator_name, 'holding_creators')) {
                     $creator_term = Term::load($tid_creator);
                 }

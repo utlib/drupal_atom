@@ -1,0 +1,18 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.taxonomy_term.field_date_of_existence
+    - taxonomy.vocabulary.holding_creators
+id: taxonomy_term.holding_creators.field_date_of_existence
+field_name: field_date_of_existence
+entity_type: taxonomy_term
+bundle: holding_creators
+label: 'Date of existence'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

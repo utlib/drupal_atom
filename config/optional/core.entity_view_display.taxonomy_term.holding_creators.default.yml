@@ -1,0 +1,30 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.taxonomy_term.holding_creators.field_date_of_existence
+    - taxonomy.vocabulary.holding_creators
+  module:
+    - text
+id: taxonomy_term.holding_creators.default
+targetEntityType: taxonomy_term
+bundle: holding_creators
+mode: default
+content:
+  description:
+    type: text_default
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 0
+    region: content
+  field_date_of_existence:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 1
+    region: content
+hidden:
+  search_api_excerpt: true

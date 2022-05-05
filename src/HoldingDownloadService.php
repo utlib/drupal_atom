@@ -219,7 +219,11 @@ class HoldingDownloadService implements HoldingDownloadServiceInterface
             'field_creator' => $creators_array,
             'field_level_of_description' => $level_of_description_term,
             'field_repository' => $repository_term,
-            'field_atom_id' => $holding,
+            'field_atom_id' => $detailedHoldingInfo->id,
+            'field_slug'=> $holding,
+            'field_finding_aid_status'=> isset($detailedHoldingInfo->finding_aids_status)? $detailedHoldingInfo->finding_aids_status: 0,
+            'field_extent_and_medium' => $detailedHoldingInfo->extent_and_medium,
+            'field_conditions_governing_acces' => $detailedHoldingInfo->conditions_governing_access,
             'field_reference_code' => !empty($detailedHoldingInfo->reference_code) ? $detailedHoldingInfo->reference_code: '', // need to make sure it's unique
             
         ];

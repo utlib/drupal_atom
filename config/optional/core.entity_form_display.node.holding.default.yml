@@ -4,17 +4,22 @@ dependencies:
   config:
     - field.field.node.holding.body
     - field.field.node.holding.field_atom_id
+    - field.field.node.holding.field_conditions_governing_acces
     - field.field.node.holding.field_creator
     - field.field.node.holding.field_date_range
+    - field.field.node.holding.field_extent_and_medium
+    - field.field.node.holding.field_finding_aid_status
     - field.field.node.holding.field_level_of_description
     - field.field.node.holding.field_reference_code
     - field.field.node.holding.field_repository
+    - field.field.node.holding.field_slug
+    - field.field.node.holding.field_thumbnail_url
     - node.type.holding
   module:
     - path
     - text
 _core:
-  default_config_hash: U2VoaUuEBPYkti6xeL6sEFc8e5GboFfFaRA1a4L5f_E
+  default_config_hash: PXbUqwddU-Sr-rtW6G_YEop6Xa9Sy9DXl6Kur8raQu0
 id: node.holding.default
 targetEntityType: node
 bundle: holding
@@ -44,6 +49,14 @@ content:
       size: 60
       placeholder: ''
     third_party_settings: {  }
+  field_conditions_governing_acces:
+    type: string_textfield
+    weight: 30
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
   field_creator:
     type: entity_reference_autocomplete
     weight: 27
@@ -57,6 +70,22 @@ content:
   field_date_range:
     type: string_textfield
     weight: 10
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_extent_and_medium:
+    type: string_textfield
+    weight: 29
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_finding_aid_status:
+    type: string_textfield
+    weight: 28
     region: content
     settings:
       size: 60
@@ -87,6 +116,22 @@ content:
     settings:
       match_operator: CONTAINS
       match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_slug:
+    type: string_textfield
+    weight: 32
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_thumbnail_url:
+    type: string_textfield
+    weight: 31
+    region: content
+    settings:
       size: 60
       placeholder: ''
     third_party_settings: {  }

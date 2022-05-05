@@ -4,17 +4,22 @@ dependencies:
   config:
     - field.field.node.holding.body
     - field.field.node.holding.field_atom_id
+    - field.field.node.holding.field_conditions_governing_acces
     - field.field.node.holding.field_creator
     - field.field.node.holding.field_date_range
+    - field.field.node.holding.field_extent_and_medium
+    - field.field.node.holding.field_finding_aid_status
     - field.field.node.holding.field_level_of_description
     - field.field.node.holding.field_reference_code
     - field.field.node.holding.field_repository
+    - field.field.node.holding.field_slug
+    - field.field.node.holding.field_thumbnail_url
     - node.type.holding
   module:
     - text
     - user
 _core:
-  default_config_hash: Y6j4s2VJFsmYIhScPmv8gKRTNNUPt0u5jQZzfZAhcvY
+  default_config_hash: ybSgeCWemSQLhPZq1GgE2LcincLN4hRvldnI58TjWws
 id: node.holding.default
 targetEntityType: node
 bundle: holding
@@ -35,6 +40,14 @@ content:
     third_party_settings: {  }
     weight: 1
     region: content
+  field_conditions_governing_acces:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 12
+    region: content
   field_creator:
     type: entity_reference_label
     label: above
@@ -50,6 +63,22 @@ content:
       link_to_entity: false
     third_party_settings: {  }
     weight: 3
+    region: content
+  field_extent_and_medium:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 11
+    region: content
+  field_finding_aid_status:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 10
     region: content
   field_level_of_description:
     type: entity_reference_label
@@ -74,6 +103,22 @@ content:
       link: true
     third_party_settings: {  }
     weight: 5
+    region: content
+  field_slug:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 14
+    region: content
+  field_thumbnail_url:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 13
     region: content
   links:
     settings: {  }

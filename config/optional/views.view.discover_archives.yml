@@ -1,11 +1,17 @@
+uuid: 771dadbe-572a-47d1-8c56-114d84c7cc35
 langcode: en
 status: true
 dependencies:
   config:
     - field.storage.node.body
+    - field.storage.node.field_conditions_governing_acces
     - field.storage.node.field_date_range
+    - field.storage.node.field_extent_and_medium
+    - field.storage.node.field_finding_aid_status
     - field.storage.node.field_level_of_description
     - field.storage.node.field_reference_code
+    - field.storage.node.field_slug
+    - field.storage.node.field_thumbnail_url
     - node.type.holding
     - system.menu.admin
     - system.menu.main
@@ -166,6 +172,11 @@ display:
           default_row_class: true
       row:
         type: fields
+        options:
+          default_field_elements: true
+          inline: {  }
+          separator: ''
+          hide_empty: true
       query:
         type: views_query
         options:
@@ -1036,7 +1047,7 @@ display:
             trim: false
             preserve_tags: ''
             html: false
-          element_type: ''
+          element_type: strong
           element_class: ''
           element_label_type: ''
           element_label_class: ''
@@ -1075,7 +1086,7 @@ display:
           label: ''
           exclude: false
           alter:
-            alter_text: false
+            alter_text: true
             text: ''
             make_link: false
             path: ''
@@ -1091,14 +1102,14 @@ display:
             suffix: ''
             target: ''
             nl2br: false
-            max_length: 0
+            max_length: 300
             word_boundary: true
             ellipsis: true
-            more_link: false
+            more_link: true
             more_link_text: ''
-            more_link_path: ''
+            more_link_path: '/archival-collections/full/{{ nid }}'
             strip_tags: false
-            trim: false
+            trim: true
             preserve_tags: ''
             html: false
           element_type: ''
@@ -1135,7 +1146,7 @@ display:
           admin_label: ''
           plugin_id: field
           label: ''
-          exclude: false
+          exclude: true
           alter:
             alter_text: true
             text: 'Level of Description <b>{{ field_level_of_description }}</b>'
@@ -1369,7 +1380,7 @@ display:
           label: ''
           exclude: false
           alter:
-            alter_text: false
+            alter_text: true
             text: '{{ body }} '
             make_link: false
             path: ''
@@ -1385,7 +1396,7 @@ display:
             suffix: ''
             target: ''
             nl2br: true
-            max_length: 350
+            max_length: 250
             word_boundary: true
             ellipsis: true
             more_link: true
@@ -1410,6 +1421,132 @@ display:
           click_sort_column: value
           type: text_default
           settings: {  }
+          group_column: value
+          group_columns: {  }
+          group_rows: true
+          delta_limit: 0
+          delta_offset: 0
+          delta_reversed: false
+          delta_first_last: false
+          multi_type: separator
+          separator: ', '
+          field_api_classes: false
+        field_slug:
+          id: field_slug
+          table: node__field_slug
+          field: field_slug
+          relationship: none
+          group_type: group
+          admin_label: ''
+          plugin_id: field
+          label: ''
+          exclude: true
+          alter:
+            alter_text: false
+            text: ''
+            make_link: false
+            path: ''
+            absolute: false
+            external: false
+            replace_spaces: false
+            path_case: none
+            trim_whitespace: false
+            alt: ''
+            rel: ''
+            link_class: ''
+            prefix: ''
+            suffix: ''
+            target: ''
+            nl2br: false
+            max_length: 0
+            word_boundary: true
+            ellipsis: true
+            more_link: false
+            more_link_text: ''
+            more_link_path: ''
+            strip_tags: false
+            trim: false
+            preserve_tags: ''
+            html: false
+          element_type: ''
+          element_class: ''
+          element_label_type: ''
+          element_label_class: ''
+          element_label_colon: false
+          element_wrapper_type: ''
+          element_wrapper_class: ''
+          element_default_classes: true
+          empty: ''
+          hide_empty: false
+          empty_zero: false
+          hide_alter_empty: true
+          click_sort_column: value
+          type: string
+          settings:
+            link_to_entity: false
+          group_column: value
+          group_columns: {  }
+          group_rows: true
+          delta_limit: 0
+          delta_offset: 0
+          delta_reversed: false
+          delta_first_last: false
+          multi_type: separator
+          separator: ', '
+          field_api_classes: false
+        field_finding_aid_status:
+          id: field_finding_aid_status
+          table: node__field_finding_aid_status
+          field: field_finding_aid_status
+          relationship: none
+          group_type: group
+          admin_label: ''
+          plugin_id: field
+          label: ''
+          exclude: false
+          alter:
+            alter_text: true
+            text: '<b><a href="https://discoverarchives.library.utoronto.ca/downloads/{{ field_slug }}.pdf">Download Finding Aid</a></b>'
+            make_link: false
+            path: ''
+            absolute: false
+            external: false
+            replace_spaces: false
+            path_case: none
+            trim_whitespace: false
+            alt: ''
+            rel: ''
+            link_class: ''
+            prefix: ''
+            suffix: ''
+            target: ''
+            nl2br: false
+            max_length: 0
+            word_boundary: true
+            ellipsis: true
+            more_link: false
+            more_link_text: ''
+            more_link_path: ''
+            strip_tags: false
+            trim: false
+            preserve_tags: ''
+            html: false
+          element_type: ''
+          element_class: ''
+          element_label_type: ''
+          element_label_class: ''
+          element_label_colon: false
+          element_wrapper_type: ''
+          element_wrapper_class: ''
+          element_default_classes: true
+          empty: ''
+          hide_empty: true
+          empty_zero: true
+          hide_alter_empty: true
+          click_sort_column: value
+          type: string
+          settings:
+            link_to_entity: false
           group_column: value
           group_columns: {  }
           group_rows: true
@@ -1610,7 +1747,7 @@ display:
           plugin_id: text
           empty: false
           content:
-            value: "<p style=\"padding-top:40px\">The following Research Collections are available at Media Archives. For information regarding finding aids and collections access, please contact&nbsp;<a href=\"http://mediacommons.library.utoronto.ca/contact-media-archives\">Rachel Beattie, Assistant Media Archivist</a>, during regular business hours.</p>\r\n"
+            value: "<style>\r\nh2 { padding:30px 0 0; }\r\n.views-exposed-form {\r\nbackground:whitesmoke; padding:15px 25px; border:1px solid lightblue; margin-bottom:25px;\r\n}\r\n.views-exposed-form .form-type-textfield  {\r\nwidth:85% !important;\r\nmax-width:500px !important;\r\n}\r\n</style>\r\n\r\n<p style=\"padding-top:40px\">The following Research Collections are available at Media Archives. For information regarding finding aids and collections access, please contact&nbsp;<a href=\"http://mediacommons.library.utoronto.ca/contact-media-archives\">Rachel Beattie, Assistant Media Archivist</a>, during regular business hours.</p>\r\n"
             format: full_html
           tokenize: false
       display_extenders: {  }
@@ -1636,8 +1773,10 @@ display:
       tags:
         - 'config:field.storage.node.body'
         - 'config:field.storage.node.field_date_range'
+        - 'config:field.storage.node.field_finding_aid_status'
         - 'config:field.storage.node.field_level_of_description'
         - 'config:field.storage.node.field_reference_code'
+        - 'config:field.storage.node.field_slug'
   page_2:
     id: page_2
     display_title: 'Holdings Detail Page'
@@ -1645,6 +1784,69 @@ display:
     position: 1
     display_options:
       fields:
+        field_slug:
+          id: field_slug
+          table: node__field_slug
+          field: field_slug
+          relationship: none
+          group_type: group
+          admin_label: ''
+          plugin_id: field
+          label: ''
+          exclude: true
+          alter:
+            alter_text: false
+            text: ''
+            make_link: false
+            path: ''
+            absolute: false
+            external: false
+            replace_spaces: false
+            path_case: none
+            trim_whitespace: false
+            alt: ''
+            rel: ''
+            link_class: ''
+            prefix: ''
+            suffix: ''
+            target: ''
+            nl2br: false
+            max_length: 0
+            word_boundary: true
+            ellipsis: true
+            more_link: false
+            more_link_text: ''
+            more_link_path: ''
+            strip_tags: false
+            trim: false
+            preserve_tags: ''
+            html: false
+          element_type: ''
+          element_class: ''
+          element_label_type: ''
+          element_label_class: ''
+          element_label_colon: false
+          element_wrapper_type: ''
+          element_wrapper_class: ''
+          element_default_classes: true
+          empty: ''
+          hide_empty: false
+          empty_zero: false
+          hide_alter_empty: true
+          click_sort_column: value
+          type: string
+          settings:
+            link_to_entity: false
+          group_column: value
+          group_columns: {  }
+          group_rows: true
+          delta_limit: 0
+          delta_offset: 0
+          delta_reversed: false
+          delta_first_last: false
+          multi_type: separator
+          separator: ', '
+          field_api_classes: false
         title:
           id: title
           table: node_field_data
@@ -1747,7 +1949,7 @@ display:
             trim: false
             preserve_tags: ''
             html: false
-          element_type: ''
+          element_type: strong
           element_class: ''
           element_label_type: ''
           element_label_class: ''
@@ -1786,8 +1988,70 @@ display:
           label: ''
           exclude: false
           alter:
-            alter_text: false
-            text: ''
+            alter_text: true
+            text: '<b>Biographical History</b><br />{{ description__value }}'
+            make_link: false
+            path: ''
+            absolute: false
+            external: false
+            replace_spaces: false
+            path_case: none
+            trim_whitespace: false
+            alt: ''
+            rel: ''
+            link_class: ''
+            prefix: ''
+            suffix: ''
+            target: ''
+            nl2br: true
+            max_length: 0
+            word_boundary: true
+            ellipsis: true
+            more_link: false
+            more_link_text: ''
+            more_link_path: ''
+            strip_tags: false
+            trim: false
+            preserve_tags: ''
+            html: false
+          element_type: ''
+          element_class: ''
+          element_label_type: ''
+          element_label_class: ''
+          element_label_colon: false
+          element_wrapper_type: ''
+          element_wrapper_class: ''
+          element_default_classes: true
+          empty: ''
+          hide_empty: false
+          empty_zero: false
+          hide_alter_empty: true
+          click_sort_column: value
+          type: text_default
+          settings: {  }
+          group_column: value
+          group_columns: {  }
+          group_rows: true
+          delta_limit: 0
+          delta_offset: 0
+          delta_reversed: false
+          delta_first_last: false
+          multi_type: separator
+          separator: ', '
+          field_api_classes: false
+        field_extent_and_medium:
+          id: field_extent_and_medium
+          table: node__field_extent_and_medium
+          field: field_extent_and_medium
+          relationship: none
+          group_type: group
+          admin_label: ''
+          plugin_id: field
+          label: ''
+          exclude: false
+          alter:
+            alter_text: true
+            text: '<b>Extent and Medium</b> {{ field_extent_and_medium }}'
             make_link: false
             path: ''
             absolute: false
@@ -1825,7 +2089,7 @@ display:
           empty_zero: false
           hide_alter_empty: true
           click_sort_column: value
-          type: text_default
+          type: basic_string
           settings: {  }
           group_column: value
           group_columns: {  }
@@ -1849,7 +2113,7 @@ display:
           exclude: false
           alter:
             alter_text: true
-            text: 'Level of Description <b>{{ field_level_of_description }}</b>'
+            text: '<b>Level of Description</b> {{ field_level_of_description }}'
             make_link: false
             path: ''
             absolute: false
@@ -2131,6 +2395,195 @@ display:
           multi_type: separator
           separator: ', '
           field_api_classes: false
+        field_conditions_governing_acces:
+          id: field_conditions_governing_acces
+          table: node__field_conditions_governing_acces
+          field: field_conditions_governing_acces
+          relationship: none
+          group_type: group
+          admin_label: ''
+          plugin_id: field
+          label: ''
+          exclude: false
+          alter:
+            alter_text: true
+            text: '<b> Conditions governing access</b> {{ field_conditions_governing_acces }}'
+            make_link: false
+            path: ''
+            absolute: false
+            external: false
+            replace_spaces: false
+            path_case: none
+            trim_whitespace: false
+            alt: ''
+            rel: ''
+            link_class: ''
+            prefix: ''
+            suffix: ''
+            target: ''
+            nl2br: false
+            max_length: 0
+            word_boundary: true
+            ellipsis: true
+            more_link: false
+            more_link_text: ''
+            more_link_path: ''
+            strip_tags: false
+            trim: false
+            preserve_tags: ''
+            html: false
+          element_type: ''
+          element_class: ''
+          element_label_type: ''
+          element_label_class: ''
+          element_label_colon: false
+          element_wrapper_type: ''
+          element_wrapper_class: ''
+          element_default_classes: true
+          empty: ''
+          hide_empty: false
+          empty_zero: false
+          hide_alter_empty: true
+          click_sort_column: value
+          type: string
+          settings:
+            link_to_entity: false
+          group_column: value
+          group_columns: {  }
+          group_rows: true
+          delta_limit: 0
+          delta_offset: 0
+          delta_reversed: false
+          delta_first_last: false
+          multi_type: separator
+          separator: ', '
+          field_api_classes: false
+        field_finding_aid_status:
+          id: field_finding_aid_status
+          table: node__field_finding_aid_status
+          field: field_finding_aid_status
+          relationship: none
+          group_type: group
+          admin_label: ''
+          plugin_id: field
+          label: ''
+          exclude: false
+          alter:
+            alter_text: true
+            text: '<b><a href="https://discoverarchives.library.utoronto.ca/downloads/{{ field_slug }}.pdf">Download Finding Aid</a></b>'
+            make_link: false
+            path: 'https://discoverarchives.library.utoronto.ca/index.php/'
+            absolute: false
+            external: false
+            replace_spaces: false
+            path_case: none
+            trim_whitespace: false
+            alt: ''
+            rel: ''
+            link_class: ''
+            prefix: ''
+            suffix: ''
+            target: ''
+            nl2br: false
+            max_length: 0
+            word_boundary: true
+            ellipsis: true
+            more_link: false
+            more_link_text: ''
+            more_link_path: ''
+            strip_tags: false
+            trim: false
+            preserve_tags: ''
+            html: false
+          element_type: ''
+          element_class: ''
+          element_label_type: ''
+          element_label_class: ''
+          element_label_colon: false
+          element_wrapper_type: ''
+          element_wrapper_class: ''
+          element_default_classes: true
+          empty: ''
+          hide_empty: true
+          empty_zero: true
+          hide_alter_empty: true
+          click_sort_column: value
+          type: string
+          settings:
+            link_to_entity: false
+          group_column: value
+          group_columns: {  }
+          group_rows: true
+          delta_limit: 0
+          delta_offset: 0
+          delta_reversed: false
+          delta_first_last: false
+          multi_type: separator
+          separator: ', '
+          field_api_classes: false
+        field_thumbnail_url:
+          id: field_thumbnail_url
+          table: node__field_thumbnail_url
+          field: field_thumbnail_url
+          relationship: none
+          group_type: group
+          admin_label: ''
+          plugin_id: field
+          label: ''
+          exclude: false
+          alter:
+            alter_text: false
+            text: ''
+            make_link: false
+            path: ''
+            absolute: false
+            external: false
+            replace_spaces: false
+            path_case: none
+            trim_whitespace: false
+            alt: ''
+            rel: ''
+            link_class: ''
+            prefix: ''
+            suffix: ''
+            target: ''
+            nl2br: false
+            max_length: 0
+            word_boundary: true
+            ellipsis: true
+            more_link: false
+            more_link_text: ''
+            more_link_path: ''
+            strip_tags: false
+            trim: false
+            preserve_tags: ''
+            html: false
+          element_type: ''
+          element_class: ''
+          element_label_type: ''
+          element_label_class: ''
+          element_label_colon: false
+          element_wrapper_type: ''
+          element_wrapper_class: ''
+          element_default_classes: true
+          empty: ''
+          hide_empty: false
+          empty_zero: false
+          hide_alter_empty: true
+          click_sort_column: value
+          type: string
+          settings:
+            link_to_entity: false
+          group_column: value
+          group_columns: {  }
+          group_rows: true
+          delta_limit: 0
+          delta_offset: 0
+          delta_reversed: false
+          delta_first_last: false
+          multi_type: separator
+          separator: ', '
+          field_api_classes: false
         view_node_1:
           id: view_node_1
           table: node
@@ -2265,6 +2718,11 @@ display:
         - user.permissions
       tags:
         - 'config:field.storage.node.body'
+        - 'config:field.storage.node.field_conditions_governing_acces'
         - 'config:field.storage.node.field_date_range'
+        - 'config:field.storage.node.field_extent_and_medium'
+        - 'config:field.storage.node.field_finding_aid_status'
         - 'config:field.storage.node.field_level_of_description'
         - 'config:field.storage.node.field_reference_code'
+        - 'config:field.storage.node.field_slug'
+        - 'config:field.storage.node.field_thumbnail_url'

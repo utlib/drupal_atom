@@ -6,3 +6,6 @@ background:whitesmoke; padding:15px 25px; border:1px solid lightblue; margin-bot
 width:85% !important;
 max-width:500px !important;
 }
+.page-view-discover-archives.field-content {
+        margin:15px 0;
+}

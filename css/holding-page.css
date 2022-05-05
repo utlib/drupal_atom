@@ -1,0 +1,8 @@
+h2 { padding:30px 0 0; }
+.views-exposed-form {
+background:whitesmoke; padding:15px 25px; border:1px solid lightblue; margin-bottom:25px;
+}
+.views-exposed-form .form-type-textfield  {
+width:85% !important;
+max-width:500px !important;
+}

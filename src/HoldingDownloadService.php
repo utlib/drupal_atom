@@ -102,16 +102,17 @@ class HoldingDownloadService implements HoldingDownloadServiceInterface
     public function atomHoldingToNode($holdings)
     {
         foreach ($holdings as $holding) {
-            $holding_id = $holding->slug;
-            $nids = $this->queryHoldingNode($holding_id);
+            $detailedHoldingInfo = $this->get(null, $holding->slug);
+            $nids = $this->queryHoldingNode($detailedHoldingInfo->id);
+
+            
             if (count($nids) <= 0) {
-                $this->createNewHoldingNode($holding_id);
+                $this->createNewHoldingNode($holding->slug);
             } else {
-                $this->updateHoldingNode($nids, $holding_id);
+                $this->updateHoldingNode($nids, $holding->slug);
             }
         
         }   
-
     }
 
   
@@ -314,7 +315,7 @@ class HoldingDownloadService implements HoldingDownloadServiceInterface
             $holdingNode->set('field_reference_code', !empty($detailedHoldingInfo->reference_code) ? $detailedHoldingInfo->reference_code: ''); // need to make sure it's unique
             $holdingNode->set('field_repository', $repository_term );
             $holdingNode->set('field_level_of_description', $level_of_description_term);
-            $holdingNode->set('field_atom_id', $holding);
+            $holdingNode->set('field_atom_id', $detailedHoldingInfo->id);
 
             $holdingNode->save();
         }

@@ -769,7 +769,7 @@ display:
         type: some
         options:
           offset: 0
-          items_per_page: 30
+          items_per_page: 100
       arguments:
         title:
           id: title
@@ -856,13 +856,146 @@ display:
     display_plugin: block
     position: 2
     display_options:
+      fields:
+        nid:
+          id: nid
+          table: node_field_data
+          field: nid
+          relationship: none
+          group_type: group
+          admin_label: ''
+          entity_type: node
+          entity_field: nid
+          plugin_id: field
+          label: ''
+          exclude: true
+          alter:
+            alter_text: false
+            text: ''
+            make_link: false
+            path: ''
+            absolute: false
+            external: false
+            replace_spaces: false
+            path_case: none
+            trim_whitespace: false
+            alt: ''
+            rel: ''
+            link_class: ''
+            prefix: ''
+            suffix: ''
+            target: ''
+            nl2br: false
+            max_length: 0
+            word_boundary: true
+            ellipsis: true
+            more_link: false
+            more_link_text: ''
+            more_link_path: ''
+            strip_tags: false
+            trim: false
+            preserve_tags: ''
+            html: false
+          element_type: ''
+          element_class: ''
+          element_label_type: ''
+          element_label_class: ''
+          element_label_colon: false
+          element_wrapper_type: ''
+          element_wrapper_class: ''
+          element_default_classes: true
+          empty: ''
+          hide_empty: false
+          empty_zero: false
+          hide_alter_empty: true
+          click_sort_column: value
+          type: number_integer
+          settings:
+            thousand_separator: ''
+            prefix_suffix: true
+          group_column: value
+          group_columns: {  }
+          group_rows: true
+          delta_limit: 0
+          delta_offset: 0
+          delta_reversed: false
+          delta_first_last: false
+          multi_type: separator
+          separator: ', '
+          field_api_classes: false
+        title:
+          id: title
+          table: node_field_data
+          field: title
+          relationship: none
+          group_type: group
+          admin_label: ''
+          entity_type: node
+          entity_field: title
+          plugin_id: field
+          label: ''
+          exclude: false
+          alter:
+            alter_text: false
+            text: ''
+            make_link: true
+            path: '/archival-collections/full/{{ nid }}'
+            absolute: false
+            external: false
+            replace_spaces: false
+            path_case: none
+            trim_whitespace: false
+            alt: ''
+            rel: ''
+            link_class: ''
+            prefix: ''
+            suffix: ''
+            target: ''
+            nl2br: false
+            max_length: 0
+            word_boundary: false
+            ellipsis: false
+            more_link: false
+            more_link_text: ''
+            more_link_path: ''
+            strip_tags: false
+            trim: false
+            preserve_tags: ''
+            html: false
+          element_type: ''
+          element_class: ''
+          element_label_type: ''
+          element_label_class: ''
+          element_label_colon: false
+          element_wrapper_type: ''
+          element_wrapper_class: ''
+          element_default_classes: true
+          empty: ''
+          hide_empty: false
+          empty_zero: false
+          hide_alter_empty: true
+          click_sort_column: value
+          type: string
+          settings:
+            link_to_entity: false
+          group_column: value
+          group_columns: {  }
+          group_rows: true
+          delta_limit: 0
+          delta_offset: 0
+          delta_reversed: false
+          delta_first_last: false
+          multi_type: separator
+          separator: ', '
+          field_api_classes: false
       pager:
         type: some
         options:
           offset: 0
-          items_per_page: 5
+          items_per_page: 0
       defaults:
         pager: false
+        fields: false
       display_extenders: {  }
     cache_metadata:
       max-age: -1
@@ -1396,7 +1529,7 @@ display:
             suffix: ''
             target: ''
             nl2br: true
-            max_length: 250
+            max_length: 150
             word_boundary: true
             ellipsis: true
             more_link: true
@@ -1506,7 +1639,7 @@ display:
           exclude: false
           alter:
             alter_text: true
-            text: '<b><a href="https://discoverarchives.library.utoronto.ca/downloads/{{ field_slug }}.pdf">Download Finding Aid</a></b>'
+            text: '<b><a href="https://discoverarchives.library.utoronto.ca/downloads/{{ field_slug }}.pdf"><i class="fas fa-download">&nbsp;</i> Download Finding Aid</a></b>'
             make_link: false
             path: ''
             absolute: false
@@ -1570,7 +1703,7 @@ display:
           exclude: false
           alter:
             alter_text: true
-            text: '<a href="https://discoverarchives.library.utoronto.ca/index.php{{ view_node_1 }}">View Full Record in Discover Archives</a>'
+            text: '<a href="https://discoverarchives.library.utoronto.ca/index.php{{ view_node_1 }}"><i class="fas fa-external-link-alt">&nbsp;</i> Full Record in Discover Archives</a>'
             make_link: false
             path: ''
             absolute: false
@@ -1610,6 +1743,27 @@ display:
           text: ''
           output_url_as_text: true
           absolute: false
+      pager:
+        type: full
+        options:
+          offset: 0
+          items_per_page: 30
+          total_pages: null
+          id: 0
+          tags:
+            next: ››
+            previous: ‹‹
+            first: '« First'
+            last: 'Last »'
+          expose:
+            items_per_page: false
+            items_per_page_label: 'Items per page'
+            items_per_page_options: '5, 10, 25, 50'
+            items_per_page_options_all: false
+            items_per_page_options_all_label: '- All -'
+            offset: false
+            offset_label: Offset
+          quantity: 9
       arguments:
         title:
           id: title
@@ -1730,6 +1884,7 @@ display:
         groups:
           1: AND
       defaults:
+        pager: false
         fields: false
         arguments: false
         filters: false
@@ -1989,7 +2144,7 @@ display:
           exclude: false
           alter:
             alter_text: true
-            text: '<b>Biographical History</b><br />{{ description__value }}'
+            text: "<h3>Biographical History</h3>\r\n{{ description__value }}"
             make_link: false
             path: ''
             absolute: false
@@ -2051,7 +2206,7 @@ display:
           exclude: false
           alter:
             alter_text: true
-            text: '<b>Extent and Medium</b> {{ field_extent_and_medium }}'
+            text: "<h3>Extent and Medium</h3>\r\n{{ field_extent_and_medium }}"
             make_link: false
             path: ''
             absolute: false
@@ -2407,7 +2562,7 @@ display:
           exclude: false
           alter:
             alter_text: true
-            text: '<b> Conditions governing access</b> {{ field_conditions_governing_acces }}'
+            text: "<h3> Conditions governing access</h3>\r\n{{ field_conditions_governing_acces }}"
             make_link: false
             path: ''
             absolute: false
@@ -2470,7 +2625,7 @@ display:
           exclude: false
           alter:
             alter_text: true
-            text: '<b><a href="https://discoverarchives.library.utoronto.ca/downloads/{{ field_slug }}.pdf">Download Finding Aid</a></b>'
+            text: '<b><a href="https://discoverarchives.library.utoronto.ca/downloads/{{ field_slug }}.pdf"><i class="fas fa-download">&nbsp;</i> Download Finding Aid</a></b>'
             make_link: false
             path: 'https://discoverarchives.library.utoronto.ca/index.php/'
             absolute: false
@@ -2597,7 +2752,7 @@ display:
           exclude: false
           alter:
             alter_text: true
-            text: '<a href="https://discoverarchives.library.utoronto.ca/index.php{{ view_node_1 }}">View Full Record in Discover Archives</a>'
+            text: '<a href="https://discoverarchives.library.utoronto.ca/index.php{{ view_node_1 }}"><i class="fas fa-external-link-alt">&nbsp;</i>Full Record in Discover Archives</a>'
             make_link: false
             path: ''
             absolute: false
@@ -2692,7 +2847,7 @@ display:
           plugin_id: text
           empty: false
           content:
-            value: '<a href="/archival-collections"><b>Back to all archival collections</b></a>'
+            value: '<a href="/archival-collections"><b><i class="fas fa-angle-left"></i>  Back to all archival collections</b></a>'
             format: full_html
           tokenize: false
       display_extenders: {  }

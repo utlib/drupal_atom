@@ -212,7 +212,7 @@ class HoldingDownloadService implements HoldingDownloadServiceInterface
             // holding fields
             'title' => $detailedHoldingInfo->title,
             'body' => [
-                'summary' => substr(strip_tags($scope_and_content), 0, 100),
+                'summary' => mb_substr(strip_tags($scope_and_content), 0, 100),
                 'value' => str_replace("<p>&nbsp;</p>", "", $scope_and_content),
                 'format' => 'full_html'
             ],
@@ -229,7 +229,9 @@ class HoldingDownloadService implements HoldingDownloadServiceInterface
             
         ];
         $node = Node::create($params);
+        \Drupal::logger('atom')->notice('current atom id: '.$detailedHoldingInfo->id. ' slug: '.$holding);
         $node->save();
+
     }
 
     protected function getTidByName($name = NULL, $vocabulary = NULL) {
@@ -306,7 +308,7 @@ class HoldingDownloadService implements HoldingDownloadServiceInterface
             // The user ID.
             $holdingNode->set('title', $detailedHoldingInfo->title);
             $holdingNode->set('body', [
-                'summary' => substr(strip_tags($scope_and_content), 0, 100),
+                'summary' => mb_substr(strip_tags($scope_and_content), 0, 100),
                 'value' => str_replace("<p>&nbsp;</p>", "", $scope_and_content),
                 'format' => 'full_html'
             ]);

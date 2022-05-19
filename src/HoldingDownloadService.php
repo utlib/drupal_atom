@@ -229,7 +229,6 @@ class HoldingDownloadService implements HoldingDownloadServiceInterface
             
         ];
         $node = Node::create($params);
-        \Drupal::logger('atom')->notice('current atom id: '.$detailedHoldingInfo->id. ' slug: '.$holding);
         $node->save();
 
     }

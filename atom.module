@@ -21,7 +21,7 @@ function atom_help($route_name, RouteMatchInterface $route_match)
         case 'help.page.atom':
             $output = '';
             $output .= '<h3>' . t('About') . '</h3>';
-            $output .= '<p>' . t('This module integrates Atom REST API and feed to drupal nodes Holdings') . '</p>';
+            $output .= '<p>' . t('This module integrates AtoM REST API and feed to drupal nodes Holdings') . '</p>';
             return $output;
 
         default:

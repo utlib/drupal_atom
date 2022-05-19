@@ -19,7 +19,7 @@ dependencies:
     - path
     - text
 _core:
-  default_config_hash: PXbUqwddU-Sr-rtW6G_YEop6Xa9Sy9DXl6Kur8raQu0
+  default_config_hash: BzIot6qpKFN_6mRkZPsrIY7VKdTGOZ8pVkSti6hRWhQ
 id: node.holding.default
 targetEntityType: node
 bundle: holding

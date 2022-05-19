@@ -1,6 +1,6 @@
 atom.atom_api_config_form:
-  title: 'Atom'
+  title: 'AtoM'
   route_name: atom.atom_api_config_form
-  description: 'Configure Atom Integration in Drupal.'
+  description: 'Configure AtoM Integration in Drupal.'
   parent: system.admin_config_system
   weight: 99

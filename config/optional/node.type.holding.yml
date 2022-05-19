@@ -8,7 +8,9 @@ third_party_settings:
     available_menus:
       - main
     parent: 'main:'
-name: Holding
+_core:
+  default_config_hash: opCH_5J6GxlJiu7HCfiggNf6NjM3uCvzBHLuGUrppLE
+name: 'Archival Holdings'
 type: holding
 description: ''
 help: ''

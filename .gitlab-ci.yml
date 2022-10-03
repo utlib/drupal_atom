@@ -1,15 +1,34 @@
 include:
-    - project: 'utl-its/gitlab-ci-templates'
-      file: '/templates/git-tag.gitlab-ci.yml'
+  - project: 'utl-its/gitlab-ci-templates'
+    file: '/templates/git-tag.gitlab-ci.yml'
+  - project: 'utl-its/gitlab-ci-templates'
+    file: '/templates/publish-composer-package.gitlab-ci.yml'
+  - project: 'utl-its/gitlab-ci-templates'
+    file: '/templates/slack.gitlab-ci.yml'
 
 stages:
-    - tag
+  - tag
+  - publish
+  - notify
 
 tag release:
-    extends: .git-tag
-    stage: tag
-    variables:
-        VERSION_FILE: "composer.json"
-        SKIP_BUMP: ${SKIP_VERSION_BUMP_ON_OFF}
-    only:
-        - main
+  extends: .git-tag
+  stage: tag
+  variables:
+    VERSION_FILE: "composer.json"
+    SKIP_CI: "false"
+    SKIP_BUMP: ${SKIP_VERSION_BUMP_ON_OFF}
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      when: on_success
+
+publish:
+  extends: .publish-composer-package
+  stage: publish
+
+notify release:
+  extends: .slack
+  stage: notify
+  variables:
+    SLACK_CHANNEL: "#drupal9"
+    SLACK_TEXT: "${CI_PROJECT_NAME} ${CI_COMMIT_REF_NAME} published to composer package registry."

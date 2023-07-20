@@ -63,7 +63,7 @@ class AtomAPIConfigForm extends ConfigFormBase
       '#required' => TRUE,
       '#default_value' => ($config->get("atom-api-key") !== null) ? $config->get("atom-api-key") : ""
     );
-    
+
 
     $form['container']['api-config']['atom-repoid'] = array(
       '#type' => 'textfield',
@@ -74,7 +74,7 @@ class AtomAPIConfigForm extends ConfigFormBase
       '#default_value' => ($config->get("atom-repoid") !== null) ? $config->get("atom-repoid") : ""
     );
 
-   
+
     $form['container']['api-config']['submit-save-config'] = array(
       '#type' => 'submit',
       '#name' => "submit-save-config",

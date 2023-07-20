@@ -56,11 +56,7 @@ function atom_cron()
 function startDownloadAtomHoldings() {
     $config = \Drupal::config('atom.atomapiconfig');
     $service = \Drupal::service('atom.download');
-  
-    // set all event exist to pasted then turn on any event downlaodeable from Libcal will be turn off
-    $service->updatePastFieldHoldingNode(true);
-  
-    // Download events regards to the calenedar id(s)
+
     if (!empty($config->get('atom-repoid'))) {
         $repoId = $config->get('atom-repoid');
         if (strpos($repoId, ',') !== false) {
@@ -74,9 +70,9 @@ function startDownloadAtomHoldings() {
             $service->atomHoldingToNode($result);
         }
     }
-  
+
   }
-  
+
 
 /**
  * Generate Path Alias for Holding node only

@@ -13,7 +13,6 @@ use Drupal\taxonomy\Entity\Term;
  */
 class HoldingDownloadService implements HoldingDownloadServiceInterface
 {
-
     /**
      * Constructs a new HoldingDownloadService object.
      */
@@ -21,8 +20,6 @@ class HoldingDownloadService implements HoldingDownloadServiceInterface
     {
 
     }
-
-    
 
     public function callATOMServer($repo_id, $param = null)
 
@@ -37,9 +34,9 @@ class HoldingDownloadService implements HoldingDownloadServiceInterface
                 } else {
                     $request_url = $config->get('host')."/index.php/api/informationobjects?sortDir=asc&sort=alphabetic&sq0=&sf0=&findingAidStatus=&topLod=1&rangeType=inclusive";
                 }
-                $response = \Drupal::httpClient()->request('GET', $request_url, 
-                [ 
-                    'headers' => [ 
+                $response = \Drupal::httpClient()->request('GET', $request_url,
+                [
+                    'headers' => [
                     'REST-API-Key' => $config->get("atom-api-key")]
                 ]
                 );
@@ -56,9 +53,9 @@ class HoldingDownloadService implements HoldingDownloadServiceInterface
                     } else {
                         $request_url = $config->get('host')."/index.php/api/informationobjects?sortDir=asc&sort=alphabetic&sq0=&sf0=&findingAidStatus=&topLod=1&rangeType=inclusive&skip=".$skip_val;
                     }
-                    $response = \Drupal::httpClient()->request('GET', $request_url, 
-                    [ 
-                        'headers' => [ 
+                    $response = \Drupal::httpClient()->request('GET', $request_url,
+                    [
+                        'headers' => [
                         'REST-API-Key' => $config->get("atom-api-key")]
                     ]
                     );
@@ -67,11 +64,11 @@ class HoldingDownloadService implements HoldingDownloadServiceInterface
                     $result_array = array_merge($result_array, $current_page->results);
                 }
                 return $result_array;
-                
+
         } else {
-            $response = \Drupal::httpClient()->request('GET', $config->get('host')."/index.php/api/informationobjects/".$param, 
-            [ 
-                'headers' => [ 
+            $response = \Drupal::httpClient()->request('GET', $config->get('host')."/index.php/api/informationobjects/".$param,
+            [
+                'headers' => [
                 'REST-API-Key' => $config->get("atom-api-key")]
             ]
             );
@@ -105,17 +102,28 @@ class HoldingDownloadService implements HoldingDownloadServiceInterface
             $detailedHoldingInfo = $this->get(null, $holding->slug);
             $nids = $this->queryHoldingNode($detailedHoldingInfo->id);
 
-            
             if (count($nids) <= 0) {
                 $this->createNewHoldingNode($holding->slug);
             } else {
                 $this->updateHoldingNode($nids, $holding->slug);
             }
-        
-        }   
+
+        }
     }
 
-  
+    protected function getTidByName($name = NULL, $vocabulary = NULL) {
+        $properties = [];
+        if (!empty($name)) {
+          $properties['name'] = $name;
+        }
+        if (!empty($vocabulary)) {
+          $properties['vid'] = $vocabulary;
+        }
+        $terms = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadByProperties($properties);
+        $term = reset($terms);
+        return !empty($term) ? $term->id() : 0;
+
+    }
 
     /**
      * @param $holding_id
@@ -128,35 +136,15 @@ class HoldingDownloadService implements HoldingDownloadServiceInterface
         $query->condition('type', "holding");
         $query->condition('field_atom_id', $holding_id);
         return $query->execute();
-
-    }
-
-    public function updatePastFieldHoldingNode($flag)
-    {
-        $query = \Drupal::entityQuery('node');
-        $query->condition('type', "holding");
-        //$query->condition('field_past_event', false);
-        $nids  = $query->execute();
-        foreach ($nids as $nid) {
-            $holdingnode = \Drupal\node\Entity\Node::load($nid);
-            //$eventnode->set('field_past_event', $flag);
-
-            // check if current timestamp with event timestamp
-            //\Drupal::messenger()->addMessage($eventnode->id() . ") ". $eventnode->getTitle() . " " . time(). " " . $eventnode->get("field_start_date")->getValue()[0]['value']. " = " . (time() > strtotime($eventnode->get("field_start_date")->getValue()[0]['value'])) , "warning");
-	    
-            $holdingnode->save();
-        }
     }
 
     /**
      * @param $holding
      */
     public function createNewHoldingNode($holding)
-    {   
+    {
         $detailedHoldingInfo = $this->get(null, $holding);
-
-        $scope_and_content = !empty($detailedHoldingInfo->scope_and_content) ?  $detailedHoldingInfo->scope_and_content: '';
-
+        $scope_and_content = !empty($detailedHoldingInfo->scope_and_content) ? $detailedHoldingInfo->scope_and_content : '';
 
         if ($tid_repository = $this->getTidByName($detailedHoldingInfo->repository, 'holding_repository')) {
             $repository_term = Term::load($tid_repository);
@@ -177,7 +165,6 @@ class HoldingDownloadService implements HoldingDownloadServiceInterface
         }
 
         $creators = $detailedHoldingInfo->creators;
-
         $creators_array = array();
 
         foreach ($creators as $creator) {
@@ -190,14 +177,13 @@ class HoldingDownloadService implements HoldingDownloadServiceInterface
                 $creator_term->description->setValue($history);
                 $creator_term->save();
             } else {
-                $term_create = Term::create(array('name' => $creator_name, 'vid' => 'holding_creators', 'field_date_of_existence' => $creator->dates_of_existence, 'description'  => array('value' => $history,'format' => 'full_html') ))->save();
+                $term_create = Term::create(array('name' => $creator_name, 'vid' => 'holding_creators', 'field_date_of_existence' => $creator->dates_of_existence, 'description' => array('value' => $history,'format' => 'full_html')))->save();
                 if ($tid_creator = $this->getTidByName($creator_name, 'holding_creators')) {
                     $creator_term = Term::load($tid_creator);
                 }
             }
             array_push($creators_array, $creator_term);
         }
-        
 
         $params = [
             // The node entity bundle.
@@ -226,25 +212,10 @@ class HoldingDownloadService implements HoldingDownloadServiceInterface
             'field_extent_and_medium' => $detailedHoldingInfo->extent_and_medium,
             'field_conditions_governing_acces' => $detailedHoldingInfo->conditions_governing_access,
             'field_reference_code' => !empty($detailedHoldingInfo->reference_code) ? $detailedHoldingInfo->reference_code: '', // need to make sure it's unique
-            
+
         ];
         $node = Node::create($params);
         $node->save();
-
-    }
-
-    protected function getTidByName($name = NULL, $vocabulary = NULL) {
-        $properties = [];
-        if (!empty($name)) {
-          $properties['name'] = $name;
-        }
-        if (!empty($vocabulary)) {
-          $properties['vid'] = $vocabulary;
-        }
-        $terms = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadByProperties($properties);
-        $term = reset($terms);
-        return !empty($term) ? $term->id() : 0;
-
     }
 
     /**
@@ -255,8 +226,7 @@ class HoldingDownloadService implements HoldingDownloadServiceInterface
     {
         $detailedHoldingInfo = $this->get(null, $holding);
 
-        $scope_and_content = !empty($detailedHoldingInfo->scope_and_content) ?  $detailedHoldingInfo->scope_and_content: '';
-
+        $scope_and_content = !empty($detailedHoldingInfo->scope_and_content) ? $detailedHoldingInfo->scope_and_content : '';
 
         if ($tid_repository = $this->getTidByName($detailedHoldingInfo->repository, 'holding_repository')) {
             $repository_term = Term::load($tid_repository);
@@ -298,7 +268,6 @@ class HoldingDownloadService implements HoldingDownloadServiceInterface
             }
             array_push($creators_array, $creator_term);
         }
-        
 
         // update existing Holding node
         $holdingNode = Node::load(array_values($nids)[0]);
@@ -321,6 +290,4 @@ class HoldingDownloadService implements HoldingDownloadServiceInterface
             $holdingNode->save();
         }
     }
-
-
 }

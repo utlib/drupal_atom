@@ -48,32 +48,28 @@ class AtomAPIConfigForm extends ConfigFormBase
       '#title' => 'API Configuration',
       '#attributes' => ['class' => ['layout-column layout-column--half'], 'style' => "width:45% !important"],
     );
+
     $form['container']['api-config']['atom-host'] = array(
       '#type' => 'textfield',
-      '#title' => $this
-        ->t('Atom Host:'),
+      '#title' => $this->t('Atom Host:'),
       '#required' => TRUE,
       '#default_value' => ($config->get("host") !== null) ? $config->get("host") : ""
     );
 
     $form['container']['api-config']['atom-api-key'] = array(
       '#type' => 'textfield',
-      '#title' => $this
-        ->t('REST API key:'),
+      '#title' => $this->t('REST API key:'),
       '#required' => TRUE,
       '#default_value' => ($config->get("atom-api-key") !== null) ? $config->get("atom-api-key") : ""
     );
 
-
     $form['container']['api-config']['atom-repoid'] = array(
       '#type' => 'textfield',
-      '#title' => $this
-        ->t('Repo ID(s):'),
-      '#required' => TRUE,
-      '#description' => $this->t('<p>To ignore, please enter -1. <br />For multiple Repo IDs, please use "," to seperate them</p>'),
+      '#title' => $this->t('Repo ID(s):'),
+      '#description' => $this->t('<p>Separate multiple repo IDs with a comma ",".</p>'),
+      '#pattern' => '^\d+(,\d+)*$',
       '#default_value' => ($config->get("atom-repoid") !== null) ? $config->get("atom-repoid") : ""
     );
-
 
     $form['container']['api-config']['submit-save-config'] = array(
       '#type' => 'submit',
@@ -89,7 +85,7 @@ class AtomAPIConfigForm extends ConfigFormBase
       '#attributes' => ['class' => ['layout-column layout-column--half'], 'style' => "left: 10px !important"],
     );
     $form['container']['manually']['description'] = array(
-      '#markup' => $this->t('<p>Download Holdings process will be run when the <a href="admin/config/system/cron">scheduled cron</a> run. However, it can be run immediately by clicking the Download button below.</p>')
+      '#markup' => $this->t('<p>Download Holdings process will be run when the <a href="admin/config/system/cron">scheduled cron</a> runs. However, it can be run immediately by clicking the Download button below.</p>')
     );
 
     $form['container']['manually']['submit-manually-download-holdings'] = array(
@@ -128,7 +124,7 @@ class AtomAPIConfigForm extends ConfigFormBase
     startDownloadAtomHoldings();
 
     $messenger = \Drupal::messenger();
-    $messenger->addMessage('Successfully downloaded Discover Archive holdings from <a href="https://discoverarchives.library.utoronto.ca/">https://discoverarchives.library.utoronto.ca</a>');
+    $messenger->addMessage('Successfully downloaded Discover Archive holdings.');
   }
 
   /**

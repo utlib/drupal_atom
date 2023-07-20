@@ -46,12 +46,10 @@ function atom_theme()
 function atom_cron()
 {
    startDownloadAtomHoldings();
-
 }
 
-
 /**
- * Trigger download Events process
+ * Trigger download Holdings process
  */
 function startDownloadAtomHoldings() {
     $config = \Drupal::config('atom.atomapiconfig');
@@ -70,9 +68,7 @@ function startDownloadAtomHoldings() {
             $service->atomHoldingToNode($result);
         }
     }
-
-  }
-
+}
 
 /**
  * Generate Path Alias for Holding node only
@@ -134,6 +130,7 @@ if (!function_exists('logging')) {
     }
 
 }
+
 /**
  * Debug function: display any variable to current webpage
  * @param $thing

@@ -22,18 +22,15 @@ class HoldingDownloadService implements HoldingDownloadServiceInterface
     }
 
     public function callATOMServer($repo_id, $param = null)
-
     {
-
         $config = \Drupal::config('atom.atomapiconfig');
 
         try {
-          if (empty($param)) {
-                if ($repo_id != -1) {
-                    $request_url = $config->get('host')."/index.php/api/informationobjects?sortDir=asc&sort=alphabetic&sq0=&sf0=&repos=".$repo_id."&findingAidStatus=&topLod=1&rangeType=inclusive";
-                } else {
-                    $request_url = $config->get('host')."/index.php/api/informationobjects?sortDir=asc&sort=alphabetic&sq0=&sf0=&findingAidStatus=&topLod=1&rangeType=inclusive";
-                }
+            $request_url = $config->get('host')."/index.php/api/informationobjects";
+            if (empty($param)) {
+                $request_url .= '?sortDir=asc&sort=alphabetic&topLod=1';
+                $request_url .= ($repo_id != "") ? "&repos=$repo_id" : '';
+
                 $response = \Drupal::httpClient()->request('GET', $request_url,
                 [
                     'headers' => [
@@ -48,12 +45,7 @@ class HoldingDownloadService implements HoldingDownloadServiceInterface
 
                 for ($i = 0; $i <= $total_pages; $i++) {
                     $skip_val = $i * 50;
-                    if ($repo_id != -1) {
-                        $request_url = $config->get('host')."/index.php/api/informationobjects?sortDir=asc&sort=alphabetic&sq0=&sf0=&repos=".$repo_id."&findingAidStatus=&topLod=1&rangeType=inclusive&skip=".$skip_val;
-                    } else {
-                        $request_url = $config->get('host')."/index.php/api/informationobjects?sortDir=asc&sort=alphabetic&sq0=&sf0=&findingAidStatus=&topLod=1&rangeType=inclusive&skip=".$skip_val;
-                    }
-                    $response = \Drupal::httpClient()->request('GET', $request_url,
+                    $response = \Drupal::httpClient()->request('GET', $request_url."&skip=$skip_val",
                     [
                         'headers' => [
                         'REST-API-Key' => $config->get("atom-api-key")]
@@ -65,15 +57,15 @@ class HoldingDownloadService implements HoldingDownloadServiceInterface
                 }
                 return $result_array;
 
-        } else {
-            $response = \Drupal::httpClient()->request('GET', $config->get('host')."/index.php/api/informationobjects/".$param,
-            [
-                'headers' => [
-                'REST-API-Key' => $config->get("atom-api-key")]
-            ]
-            );
-        }
-        return json_decode((string)$response->getBody());
+            } else {
+                $response = \Drupal::httpClient()->request('GET', $request_url."/$param",
+                [
+                    'headers' => [
+                    'REST-API-Key' => $config->get("atom-api-key")]
+                ]
+                );
+            }
+            return json_decode((string)$response->getBody());
         } catch (RequestException $e) {
             print_r($e->getMessage());
             return null;
@@ -99,15 +91,7 @@ class HoldingDownloadService implements HoldingDownloadServiceInterface
     public function atomHoldingToNode($holdings)
     {
         foreach ($holdings as $holding) {
-            $detailedHoldingInfo = $this->get(null, $holding->slug);
-            $nids = $this->queryHoldingNode($detailedHoldingInfo->id);
-
-            if (count($nids) <= 0) {
-                $this->createNewHoldingNode($holding->slug);
-            } else {
-                $this->updateHoldingNode($nids, $holding->slug);
-            }
-
+            $this->createNewHoldingNode($holding);
         }
     }
 
@@ -122,7 +106,6 @@ class HoldingDownloadService implements HoldingDownloadServiceInterface
         $terms = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadByProperties($properties);
         $term = reset($terms);
         return !empty($term) ? $term->id() : 0;
-
     }
 
     /**
@@ -143,7 +126,7 @@ class HoldingDownloadService implements HoldingDownloadServiceInterface
      */
     public function createNewHoldingNode($holding)
     {
-        $detailedHoldingInfo = $this->get(null, $holding);
+        $detailedHoldingInfo = $this->get(null, $holding->slug);
         $scope_and_content = !empty($detailedHoldingInfo->scope_and_content) ? $detailedHoldingInfo->scope_and_content : '';
 
         if ($tid_repository = $this->getTidByName($detailedHoldingInfo->repository, 'holding_repository')) {
@@ -185,16 +168,16 @@ class HoldingDownloadService implements HoldingDownloadServiceInterface
             array_push($creators_array, $creator_term);
         }
 
-        $params = [
+        $nodeParams = [
             // The node entity bundle.
             'type' => 'holding',
             'langcode' => 'en',
-            'created' => time(),
-            'changed' => time(),
             // The user ID.
             'uid' => 1,
-            'moderation_state' => 'published',
+            'moderation_state' => 'published'
+        ];
 
+        $holdingParams = [
             // holding fields
             'title' => $detailedHoldingInfo->title,
             'body' => [
@@ -207,87 +190,57 @@ class HoldingDownloadService implements HoldingDownloadServiceInterface
             'field_level_of_description' => $level_of_description_term,
             'field_repository' => $repository_term,
             'field_atom_id' => $detailedHoldingInfo->id,
-            'field_slug'=> $holding,
-            'field_finding_aid_status'=> isset($detailedHoldingInfo->finding_aids_status)? $detailedHoldingInfo->finding_aids_status: 0,
+            'field_slug'=> $holding->slug,
+            'field_finding_aid_status'=> isset($detailedHoldingInfo->finding_aids_status) ? $detailedHoldingInfo->finding_aids_status : 0,
             'field_extent_and_medium' => $detailedHoldingInfo->extent_and_medium,
             'field_conditions_governing_acces' => $detailedHoldingInfo->conditions_governing_access,
-            'field_reference_code' => !empty($detailedHoldingInfo->reference_code) ? $detailedHoldingInfo->reference_code: '', // need to make sure it's unique
-
+            'field_reference_code' => !empty($detailedHoldingInfo->reference_code) ? $detailedHoldingInfo->reference_code : ''
         ];
-        $node = Node::create($params);
-        $node->save();
-    }
 
-    /**
-     * @param $nids
-     * @param $holding
-     */
-    public function updateHoldingNode($nids, $holding)
-    {
-        $detailedHoldingInfo = $this->get(null, $holding);
+        $newNode = Node::create(array_merge($nodeParams, $holdingParams));
 
-        $scope_and_content = !empty($detailedHoldingInfo->scope_and_content) ? $detailedHoldingInfo->scope_and_content : '';
+        // Determine if we should create a new node or update an existing one
+        $nids = $this->queryHoldingNode($detailedHoldingInfo->id);
 
-        if ($tid_repository = $this->getTidByName($detailedHoldingInfo->repository, 'holding_repository')) {
-            $repository_term = Term::load($tid_repository);
+        if (count($nids) <= 0) {
+            // New node, so just save it and we're done.
+            $newNode->set('created', time());
+            $newNode->set('changed', time());
+            $newNode->save();
         } else {
-            $term_create = Term::create(array('name' => $detailedHoldingInfo->repository, 'vid' => 'holding_repository' ))->save();
-            if ($tid_repository = $this->getTidByName($detailedHoldingInfo->repository, 'holding_repository')) {
-                $repository_term = Term::load($tid_repository);
-            }
-        }
+            $currentNode = Node::load(array_values($nids)[0]);
+            $updateRequired = false;
 
-        if ($tid_level_of_description = $this->getTidByName($detailedHoldingInfo->level_of_description, 'holding_level_of_description')) {
-            $level_of_description_term = Term::load($tid_level_of_description);
-        } else {
-            $term_create = Term::create(array('name' => $detailedHoldingInfo->level_of_description, 'vid' => 'holding_level_of_description' ))->save();
-            if ($tid_level_of_description = $this->getTidByName($detailedHoldingInfo->level_of_description, 'holding_level_of_description')) {
-                $level_of_description_term = Term::load($tid_level_of_description);
-            }
-        }
+            foreach (array_keys($holdingParams) as $field) {
+                // Get the currently set and expected values
+                $cv = $currentNode->get($field)->value;
+                $nv = $newNode->get($field)->value;
 
-        $creators = $detailedHoldingInfo->creators;
-
-        $creators_array = array();
-
-        foreach ($creators as $creator) {
-            $creator_name = $creator->authotized_form_of_name;
-            $history = $creator->history;
-            if ($tid_creator = $this->getTidByName($creator_name, 'holding_creators')) {
-                $creator_term = Term::load($tid_creator);
-                //update description (history), and dates of existence
-                $creator_term->field_date_of_existence->setValue($creator->dates_of_existence);
-                $creator_term->description->setValue($history);
-                $creator_term->save();
-
-            } else {
-                $term_create = Term::create(array('name' => $creator_name, 'vid' => 'holding_creators','field_date_of_existence' => $creator->dates_of_existence, 'description'  => array('value' => $history,'format' => 'full_html')))->save();
-                if ($tid_creator = $this->getTidByName($creator_name, 'holding_creators')) {
-                    $creator_term = Term::load($tid_creator);
+                // If they do not match
+                if ($cv != $nv) {
+                    $updateRequired = true;
+                    // body field requires special treatment
+                    $b = 'body';
+                    if ($field == $b) {
+                        $currentNode->set(
+                            $b,
+                            [
+                                'summary' => $newNode->get($b)->summary,
+                                'value' => $newNode->get($b)->value,
+                                'format' => 'full_html'
+                            ]
+                        );
+                    } else {
+                        $currentNode->set($field, $nv);
+                    }
                 }
             }
-            array_push($creators_array, $creator_term);
-        }
 
-        // update existing Holding node
-        $holdingNode = Node::load(array_values($nids)[0]);
-        if (isset($holdingNode)) {
-            $holdingNode->set('changed', time());
-            // The user ID.
-            $holdingNode->set('title', $detailedHoldingInfo->title);
-            $holdingNode->set('body', [
-                'summary' => mb_substr(strip_tags($scope_and_content), 0, 100),
-                'value' => str_replace("<p>&nbsp;</p>", "", $scope_and_content),
-                'format' => 'full_html'
-            ]);
-            $holdingNode->set('field_date_range', $daterange);
-            $holdingNode->set('field_creator', $creators_array);
-            $holdingNode->set('field_reference_code', !empty($detailedHoldingInfo->reference_code) ? $detailedHoldingInfo->reference_code: ''); // need to make sure it's unique
-            $holdingNode->set('field_repository', $repository_term );
-            $holdingNode->set('field_level_of_description', $level_of_description_term);
-            $holdingNode->set('field_atom_id', $detailedHoldingInfo->id);
-
-            $holdingNode->save();
+            // Only update the node if there were changes
+            if ($updateRequired) {
+                $currentNode->set('changed', time());
+                $currentNode->save();
+            }
         }
     }
 }

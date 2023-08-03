@@ -124,7 +124,7 @@ class AtomAPIConfigForm extends ConfigFormBase
     startDownloadAtomHoldings();
 
     $messenger = \Drupal::messenger();
-    $messenger->addMessage('Successfully downloaded Discover Archive holdings.');
+    $messenger->addMessage('Successfully downloaded holdings from AtoM.');
   }
 
   /**

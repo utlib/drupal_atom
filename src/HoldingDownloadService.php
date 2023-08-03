@@ -29,7 +29,9 @@ class HoldingDownloadService implements HoldingDownloadServiceInterface
             $request_url = $config->get('host')."/index.php/api/informationobjects";
             if (empty($param)) {
                 $request_url .= '?sortDir=asc&sort=alphabetic&topLod=1';
-                $request_url .= ($repo_id != "") ? "&repos=$repo_id" : '';
+                if (!empty($repo_id)) {
+                    $request_url .= "&repos=$repo_id";
+                }
 
                 $response = \Drupal::httpClient()->request('GET', $request_url,
                 [
@@ -74,8 +76,6 @@ class HoldingDownloadService implements HoldingDownloadServiceInterface
 
     public function get($repo_id = null, $params = null)
     {
-        $config = \Drupal::config('atom.atomapiconfig');
-
         try {
             $contents = $this->callATOMServer($repo_id, $params);
         } catch (RequestException $e) {
@@ -240,6 +240,30 @@ class HoldingDownloadService implements HoldingDownloadServiceInterface
             if ($updateRequired) {
                 $currentNode->set('changed', time());
                 $currentNode->save();
+            }
+        }
+    }
+
+    /**
+     * Deletes event nodes that have been deleted from libcal
+     */
+    public function deleteStaleHoldings($holdings) {
+        // Get all holdings
+        $query = \Drupal::entityQuery('node');
+        $query->condition('status', 1);
+        $query->condition('type', 'holding');
+        $nids = $query->execute();
+
+        // Get only the slugs from the holdings array
+        $slugs = array_column($holdings, 'slug');
+
+        foreach ($nids as $nid) {
+            $node = Node::load($nid);
+            $slug = $node->field_slug->value;
+
+            // Check that this slug is present in the holdings array, delete it if it isn't
+            if (!in_array($slug, $slugs)) {
+                $node->delete();
             }
         }
     }

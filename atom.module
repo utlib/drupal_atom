@@ -55,19 +55,17 @@ function startDownloadAtomHoldings() {
     $config = \Drupal::config('atom.atomapiconfig');
     $service = \Drupal::service('atom.download');
 
-    if (!empty($config->get('atom-repoid'))) {
-        $repoId = $config->get('atom-repoid');
-        if (strpos($repoId, ',') !== false) {
-            $repoId_list = explode(',', $repoId);
-            foreach ($repoId_list as $repo_id) {
-                $result = $service->get($repo_id, null);
-                $service->atomHoldingToNode($result);
-            }
-        } else {
-            $result = $service->get($repoId, null);
-            $service->atomHoldingToNode($result);
-        }
+    $repoIds = explode(',', $config->get('atom-repoid'));
+
+    $result = [];
+
+    foreach ($repoIds as $repoId) {
+        $r = $service->get($repoId, null);
+        $result = array_merge($result, $r);
     }
+
+    $service->atomHoldingToNode($result);
+    $service->deleteStaleHoldings($result);
 }
 
 /**

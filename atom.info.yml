@@ -1,7 +1,7 @@
 name: 'AtoM Integration'
 type: module
-description: 'This module is integrate Atom REST API and feed to drupal'
+description: 'Syncs holdings in AtoM to Drupal.'
 core_version_requirement: '^8.8 || ^9'
-package: DSU
+package: UTL
 dependencies:
   - menu_ui

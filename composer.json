@@ -1,8 +1,8 @@
 {
     "name": "central-library-services/drupal_atom",
     "type": "drupal-custom-module",
-    "version": "v0.1.10",
-    "description": "This module is integrate Atom Rest API and feed to drupal",
+    "version": "v0.2.0",
+    "description": "Syncs holdings in AtoM to Drupal.",
     "keywords": [
     ],
     "homepage": "https://www.drupal.org/project/atom",

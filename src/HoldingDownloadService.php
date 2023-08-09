@@ -2,7 +2,6 @@
 
 namespace Drupal\atom;
 
-use Drupal\Core\Datetime\DrupalDateTime;
 use GuzzleHttp\Exception\RequestException;
 use Masterminds\HTML5\Exception;
 use Drupal\node\Entity\Node;
@@ -85,14 +84,24 @@ class HoldingDownloadService implements HoldingDownloadServiceInterface
         return $contents;
     }
 
+    // Some public variables for reporting
+    public $created = 0;
+    public $updated = 0;
+    public $deleted = 0;
+
     /**
      * @param array $holdings
      */
     public function atomHoldingToNode($holdings)
     {
+        $nids = [];
+
         foreach ($holdings as $holding) {
-            $this->createNewHoldingNode($holding);
+            $nid = $this->createNewHoldingNode($holding);
+            $nids[] = $nid;
         }
+
+        return $nids;
     }
 
     protected function getTidByName($name = NULL, $vocabulary = NULL) {
@@ -123,6 +132,7 @@ class HoldingDownloadService implements HoldingDownloadServiceInterface
 
     /**
      * @param $holding
+     * @return $nid
      */
     public function createNewHoldingNode($holding)
     {
@@ -207,8 +217,12 @@ class HoldingDownloadService implements HoldingDownloadServiceInterface
             $newNode->set('created', time());
             $newNode->set('changed', time());
             $newNode->save();
+            // Node receives a nid after it has been saved
+            $nid = $newNode->nid->value;
+            $this->created++;
         } else {
-            $currentNode = Node::load(array_values($nids)[0]);
+            $nid = array_values($nids)[0];
+            $currentNode = Node::load($nid);
             $updateRequired = false;
 
             foreach (array_keys($holdingParams) as $field) {
@@ -240,31 +254,32 @@ class HoldingDownloadService implements HoldingDownloadServiceInterface
             if ($updateRequired) {
                 $currentNode->set('changed', time());
                 $currentNode->save();
+                $this->updated++;
             }
         }
+
+        return $nid;
     }
 
     /**
-     * Deletes event nodes that have been deleted from libcal
+     * Deletes event nodes that have been deleted from AtoM
      */
-    public function deleteStaleHoldings($holdings) {
+    public function deleteStaleHoldings($nids) {
         // Get all holdings
         $query = \Drupal::entityQuery('node');
         $query->condition('status', 1);
         $query->condition('type', 'holding');
-        $nids = $query->execute();
+        $dbnids = $query->execute();
 
-        // Get only the slugs from the holdings array
-        $slugs = array_column($holdings, 'slug');
+        $todelete = array_diff(array_values($dbnids), $nids);
 
-        foreach ($nids as $nid) {
-            $node = Node::load($nid);
-            $slug = $node->field_slug->value;
+        // Seem to be facing issues with long execution time on SQL query when
+        // deleting nodes. This increases it to 5 minutes, but only for this method.
+        set_time_limit(300);
 
-            // Check that this slug is present in the holdings array, delete it if it isn't
-            if (!in_array($slug, $slugs)) {
-                $node->delete();
-            }
+        foreach ($todelete as $nid) {
+            Node::load($nid)->delete();
+            $this->deleted++;
         }
     }
 }

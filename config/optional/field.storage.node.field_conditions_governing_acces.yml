@@ -7,7 +7,7 @@ dependencies:
 id: node.field_conditions_governing_acces
 field_name: field_conditions_governing_acces
 entity_type: node
-type: string
+type: string_long
 settings:
   max_length: 255
   case_sensitive: false

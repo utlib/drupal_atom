@@ -64,8 +64,18 @@ function startDownloadAtomHoldings() {
         $result = array_merge($result, $r);
     }
 
-    $service->atomHoldingToNode($result);
-    $service->deleteStaleHoldings($result);
+    $nids = $service->atomHoldingToNode($result);
+    $service->deleteStaleHoldings($nids);
+
+    \Drupal::logger('atom')->notice(
+        'AtoM sync complete. Found @total holdings, created @created, updated @updated, deleted @deleted.',
+        [
+            '@total' => count($nids),
+            '@created' => $service->created,
+            '@updated' => $service->updated,
+            '@deleted' => $service->deleted
+        ]
+    );
 }
 
 /**
@@ -139,5 +149,25 @@ if (!function_exists('logging')) {
         echo "<pre>";
         print_r($thing);
         echo "</pre>";
+    }
+}
+
+function atom_update_9020() {
+    $schema = \Drupal\Core\Database\Database::getConnection()->schema();
+
+    $spec = ['type' => 'text', 'size' => 'big', 'not null' => TRUE];
+
+    $tables = [
+        'node__field_conditions_governing_acces',
+        'node_revision__field_conditions_governing_acces'
+    ];
+
+    foreach ($tables as $table) {
+        $schema->changeField(
+            $table,
+            'field_conditions_governing_acces_value',
+            'field_conditions_governing_acces_value',
+            $spec
+        );
     }
 }

@@ -149,8 +149,8 @@ class HoldingDownloadService implements HoldingDownloadServiceInterface
         }
 
         // Create holding_level_of_description taxonomy term
-        $level_of_description = $detailedHoldingInfo->level_of_description;
-        if ($level_of_description) {
+        if (isset($detailedHoldingInfo->level_of_description)) {
+            $level_of_description = $detailedHoldingInfo->level_of_description;
             $level_of_description_term = $this->getTermByName($level_of_description, 'holding_level_of_description');
             if (!$level_of_description_term) {
                 Term::create(array('name' => $level_of_description, 'vid' => 'holding_level_of_description' ))->save();
@@ -159,45 +159,50 @@ class HoldingDownloadService implements HoldingDownloadServiceInterface
         }
 
         // Create or update holding_creators taxonomy term(s)
-        $creators = $detailedHoldingInfo->creators;
+        $creators = isset($detailedHoldingInfo->creators) ? $detailedHoldingInfo->creators : [];
         $creators_array = array();
 
         foreach ($creators as $creator) {
             // This compensates for a typo in AtoM <=2.6
-            if ($creator->authorized_form_of_name) {
+            if (isset($creator->authorized_form_of_name)) {
                 // authorized
                 $creator_name = $creator->authorized_form_of_name;
             } else {
                 // authotized
                 $creator_name = $creator->authotized_form_of_name;
             }
-            // AtoM JSON delivers markup. Parsedown converts to HTML.
-            $history = Parsedown::instance()->text($creator->history);
-            // If Parsedown is given null input, it outputs an empty string.
-            // Setting history and format to null helps with idempotency when there
-            // was no history, because Drupal returns null if the field is empty.
-            $format = 'full_html';
-            if (!$history) {
-                $history = null;
-                $format = null;
-            }
-            $dates_of_existence = $creator->dates_of_existence;
+
             $creator_term = $this->getTermByName($creator_name, 'holding_creators');
+
             if ($creator_term) {
-                // Update description (history), and dates of existence if necessary
-                if (
-                    $creator_term->field_date_of_existence->value != $dates_of_existence ||
-                    $creator_term->description->value != $history ||
-                    $creator_term->description->format != $format
-                ) {
-                    $creator_term->field_date_of_existence->setValue($dates_of_existence);
-                    $creator_term->set(
-                        'description',
-                        [
-                            'value' => $history,
-                            'format' => 'full_html'
-                        ]
+                // Update dates_of_existence if necessary
+                if (isset($creator->dates_of_existence)) {
+                    $dates_of_existence = $creator->dates_of_existence;
+                    if ($creator_term->field_date_of_existence->value != $dates_of_existence) {
+                        $creator_term->field_date_of_existence->setValue($dates_of_existence);
+                        $creator_term->save();
+                    }
+                } else {
+                    $creator_term->field_date_of_existence->setValue(null);
+                    $creator_term->save();
+                }
+
+                // Update description (history) if necessary
+                if (isset($creator->history)) {
+                    // AtoM JSON delivers markup. Parsedown converts to HTML.
+                    $history = Parsedown::instance()->text($creator->history);
+                    if ($creator_term->description->value != $history || $creator_term->description->format != 'full_html') {
+                        $creator_term->set(
+                            'description',
+                            [
+                                'value' => $history,
+                                'format' => 'full_html'
+                            ]
                         );
+                        $creator_term->save();
+                    }
+                } else {
+                    $creator_term->description->setValue(null);
                     $creator_term->save();
                 }
             } else {
@@ -210,6 +215,13 @@ class HoldingDownloadService implements HoldingDownloadServiceInterface
                 $creator_term = $this->getTermByName($creator_name, 'holding_creators');
             }
             array_push($creators_array, $creator_term);
+        }
+
+        $date = null;
+        if (isset($detailedHoldingInfo->dates)) {
+            if (isset($detailedHoldingInfo->dates[0]->date)) {
+                $date = $detailedHoldingInfo->dates[0]->date;
+            }
         }
 
         $nodeParams = [
@@ -229,14 +241,14 @@ class HoldingDownloadService implements HoldingDownloadServiceInterface
                 'value' => str_replace("<p>&nbsp;</p>", "", $scope_and_content),
                 'format' => 'full_html'
             ],
-            'field_date_range' => $detailedHoldingInfo->dates[0]->date,
+            'field_date_range' => $date,
             'field_creator' => $creators_array,
-            'field_level_of_description' => $level_of_description_term,
+            'field_level_of_description' => isset($level_of_description_term) ? $level_of_description_term : null,
             'field_repository' => $repository_term,
             'field_atom_id' => $detailedHoldingInfo->id,
             'field_slug'=> $slug,
             'field_finding_aid_status'=> isset($detailedHoldingInfo->finding_aids_status) ? $detailedHoldingInfo->finding_aids_status : 0,
-            'field_extent_and_medium' => $detailedHoldingInfo->extent_and_medium,
+            'field_extent_and_medium' => isset($detailedHoldingInfo->extent_and_medium) ? $detailedHoldingInfo->extent_and_medium : '',
             'field_conditions_governing_acces' => $detailedHoldingInfo->conditions_governing_access,
             'field_reference_code' => !empty($detailedHoldingInfo->reference_code) ? $detailedHoldingInfo->reference_code : ''
         ];

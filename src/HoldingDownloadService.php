@@ -104,17 +104,14 @@ class HoldingDownloadService implements HoldingDownloadServiceInterface
         return $nids;
     }
 
-    protected function getTidByName($name = NULL, $vocabulary = NULL) {
-        $properties = [];
-        if (!empty($name)) {
-          $properties['name'] = $name;
-        }
-        if (!empty($vocabulary)) {
-          $properties['vid'] = $vocabulary;
-        }
+    protected function getTermByName($name, $vocabulary) {
+        $properties = [
+            'name' => $name,
+            'vid' => $vocabulary
+        ];
         $terms = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadByProperties($properties);
         $term = reset($terms);
-        return !empty($term) ? $term->id() : 0;
+        return !empty($term) ? $term : false;
     }
 
     /**
@@ -125,7 +122,7 @@ class HoldingDownloadService implements HoldingDownloadServiceInterface
     {
         $query = \Drupal::entityQuery('node');
         $query->condition('status', 1);
-        $query->condition('type', "holding");
+        $query->condition('type', 'holding');
         $query->condition('field_atom_id', $holding_id);
         return $query->execute();
     }
@@ -136,44 +133,61 @@ class HoldingDownloadService implements HoldingDownloadServiceInterface
      */
     public function createNewHoldingNode($holding)
     {
-        $detailedHoldingInfo = $this->get(null, $holding->slug);
+        $slug = $holding->slug;
+        $detailedHoldingInfo = $this->get(null, $slug);
         $scope_and_content = !empty($detailedHoldingInfo->scope_and_content) ? $detailedHoldingInfo->scope_and_content : '';
 
-        if ($tid_repository = $this->getTidByName($detailedHoldingInfo->repository, 'holding_repository')) {
-            $repository_term = Term::load($tid_repository);
-        } else {
-            $term_create = Term::create(array('name' => $detailedHoldingInfo->repository, 'vid' => 'holding_repository' ))->save();
-            if ($tid_repository = $this->getTidByName($detailedHoldingInfo->repository, 'holding_repository')) {
-                $repository_term = Term::load($tid_repository);
+        // Create holding_repository taxonomy term
+        $repository = $detailedHoldingInfo->repository;
+        if ($repository) {
+            $repository_term = $this->getTermByName($repository, 'holding_repository');
+            if (!$repository_term) {
+                Term::create(array('name' => $repository, 'vid' => 'holding_repository' ))->save();
+                $repository_term = $this->getTermByName($repository, 'holding_repository');
             }
         }
 
-        if ($tid_level_of_description = $this->getTidByName($detailedHoldingInfo->level_of_description, 'holding_level_of_description')) {
-            $level_of_description_term = Term::load($tid_level_of_description);
-        } else {
-            $term_create = Term::create(array('name' => $detailedHoldingInfo->level_of_description, 'vid' => 'holding_level_of_description' ))->save();
-            if ($tid_level_of_description = $this->getTidByName($detailedHoldingInfo->level_of_description, 'holding_level_of_description')) {
-                $level_of_description_term = Term::load($tid_level_of_description);
+        // Create holding_level_of_description taxonomy term
+        $level_of_description = $detailedHoldingInfo->level_of_description;
+        if ($level_of_description) {
+            $level_of_description_term = $this->getTermByName($level_of_description, 'holding_level_of_description');
+            if (!$level_of_description_term) {
+                Term::create(array('name' => $level_of_description, 'vid' => 'holding_level_of_description' ))->save();
+                $level_of_description_term = $this->getTermByName($level_of_description, 'holding_level_of_description');
             }
         }
 
+        // Create or update holding_creators taxonomy term(s)
         $creators = $detailedHoldingInfo->creators;
         $creators_array = array();
 
         foreach ($creators as $creator) {
-            $creator_name = $creator->authotized_form_of_name;
-            $history = $creator->history;
-            if ($tid_creator = $this->getTidByName($creator_name, 'holding_creators')) {
-                $creator_term = Term::load($tid_creator);
-                //update description (history), and dates of existence
-                $creator_term->field_date_of_existence->setValue($creator->dates_of_existence);
-                $creator_term->description->setValue($history);
-                $creator_term->save();
+            // This compensates for a typo in AtoM <=2.6
+            if ($creator->authorized_form_of_name) {
+                // authorized
+                $creator_name = $creator->authorized_form_of_name;
             } else {
-                $term_create = Term::create(array('name' => $creator_name, 'vid' => 'holding_creators', 'field_date_of_existence' => $creator->dates_of_existence, 'description' => array('value' => $history,'format' => 'full_html')))->save();
-                if ($tid_creator = $this->getTidByName($creator_name, 'holding_creators')) {
-                    $creator_term = Term::load($tid_creator);
+                // authotized
+                $creator_name = $creator->authotized_form_of_name;
+            }
+            $history = $creator->history;
+            $dates_of_existence = $creator->dates_of_existence;
+            $creator_term = $this->getTermByName($creator_name, 'holding_creators');
+            if ($creator_term) {
+                // Update description (history), and dates of existence if necessary
+                if ($creator_term->field_date_of_existence->value != $dates_of_existence || $creator_term->description->value != $history) {
+                    $creator_term->field_date_of_existence->setValue($dates_of_existence);
+                    $creator_term->description->setValue($history);
+                    $creator_term->save();
                 }
+            } else {
+                $term_create = Term::create(array(
+                    'name' => $creator_name,
+                    'vid' => 'holding_creators',
+                    'field_date_of_existence' => $creator->dates_of_existence,
+                    'description' => array('value' => $history,'format' => 'full_html')
+                ))->save();
+                $creator_term = $this->getTermByName($creator_name, 'holding_creators');
             }
             array_push($creators_array, $creator_term);
         }
@@ -200,7 +214,7 @@ class HoldingDownloadService implements HoldingDownloadServiceInterface
             'field_level_of_description' => $level_of_description_term,
             'field_repository' => $repository_term,
             'field_atom_id' => $detailedHoldingInfo->id,
-            'field_slug'=> $holding->slug,
+            'field_slug'=> $slug,
             'field_finding_aid_status'=> isset($detailedHoldingInfo->finding_aids_status) ? $detailedHoldingInfo->finding_aids_status : 0,
             'field_extent_and_medium' => $detailedHoldingInfo->extent_and_medium,
             'field_conditions_governing_acces' => $detailedHoldingInfo->conditions_governing_access,

@@ -2,6 +2,7 @@
 
 namespace Drupal\atom;
 
+use Parsedown;
 use GuzzleHttp\Exception\RequestException;
 use Masterminds\HTML5\Exception;
 use Drupal\node\Entity\Node;
@@ -170,14 +171,33 @@ class HoldingDownloadService implements HoldingDownloadServiceInterface
                 // authotized
                 $creator_name = $creator->authotized_form_of_name;
             }
-            $history = $creator->history;
+            // AtoM JSON delivers markup. Parsedown converts to HTML.
+            $history = Parsedown::instance()->text($creator->history);
+            // If Parsedown is given null input, it outputs an empty string.
+            // Setting history and format to null helps with idempotency when there
+            // was no history, because Drupal returns null if the field is empty.
+            $format = 'full_html';
+            if (!$history) {
+                $history = null;
+                $format = null;
+            }
             $dates_of_existence = $creator->dates_of_existence;
             $creator_term = $this->getTermByName($creator_name, 'holding_creators');
             if ($creator_term) {
                 // Update description (history), and dates of existence if necessary
-                if ($creator_term->field_date_of_existence->value != $dates_of_existence || $creator_term->description->value != $history) {
+                if (
+                    $creator_term->field_date_of_existence->value != $dates_of_existence ||
+                    $creator_term->description->value != $history ||
+                    $creator_term->description->format != $format
+                ) {
                     $creator_term->field_date_of_existence->setValue($dates_of_existence);
-                    $creator_term->description->setValue($history);
+                    $creator_term->set(
+                        'description',
+                        [
+                            'value' => $history,
+                            'format' => 'full_html'
+                        ]
+                        );
                     $creator_term->save();
                 }
             } else {
@@ -185,7 +205,7 @@ class HoldingDownloadService implements HoldingDownloadServiceInterface
                     'name' => $creator_name,
                     'vid' => 'holding_creators',
                     'field_date_of_existence' => $creator->dates_of_existence,
-                    'description' => array('value' => $history,'format' => 'full_html')
+                    'description' => array('value' => $history, 'format' => 'full_html')
                 ))->save();
                 $creator_term = $this->getTermByName($creator_name, 'holding_creators');
             }

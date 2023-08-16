@@ -1,9 +1,12 @@
 {
     "name": "central-library-services/drupal_atom",
     "type": "drupal-custom-module",
-    "version": "v0.2.0",
+    "version": "v0.2.1",
     "description": "Syncs holdings in AtoM to Drupal.",
     "keywords": [
     ],
-    "minimum-stability": "dev"
+    "minimum-stability": "dev",
+    "require": {
+        "erusev/parsedown": "dev-master"
+    }
 }

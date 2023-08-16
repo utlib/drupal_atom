@@ -17,3 +17,7 @@ The module creates a Cron job which will run the synchronization at the specifie
 ## Manual synchronization
 
 Click the Download button on the configuration page to immediately run the synchronization.
+
+## Example
+
+You can see an example of the module in use for U of T's Media Archives [Drupal website](https://media-archives.library.utoronto.ca/archival-collections) - the module enables this additional discovery point for their [AtoM archival descriptions](https://discoverarchives.library.utoronto.ca/index.php/university-of-toronto-media-commons).

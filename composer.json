@@ -5,10 +5,5 @@
     "description": "Syncs holdings in AtoM to Drupal.",
     "keywords": [
     ],
-    "homepage": "https://www.drupal.org/project/atom",
-    "support": {
-        "issues": "https://www.drupal.org/project/issues/atom",
-        "source": "http://cgit.drupalcode.org/atom"
-    },
     "minimum-stability": "dev"
 }

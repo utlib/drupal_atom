@@ -1,10 +1,9 @@
 include:
   - project: 'utl-its/gitlab-ci-templates'
-    file: '/templates/git-tag.gitlab-ci.yml'
-  - project: 'utl-its/gitlab-ci-templates'
-    file: '/templates/publish-composer-package.gitlab-ci.yml'
-  - project: 'utl-its/gitlab-ci-templates'
-    file: '/templates/slack.gitlab-ci.yml'
+    file:
+      - '/templates/git-tag.gitlab-ci.yml'
+      - '/templates/publish-composer-package.gitlab-ci.yml'
+      - '/templates/slack.gitlab-ci.yml'
 
 stages:
   - tag

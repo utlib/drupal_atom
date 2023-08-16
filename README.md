@@ -1,6 +1,6 @@
 # Drupal AtoM Importer
 
-This module creates Nodes and Taxonomies based on JSON data read from an AtoM API.
+This module creates Nodes and Taxonomies based on JSON data read from an [AtoM API](https://www.accesstomemory.org/en/docs/latest/dev-manual/api/api-intro/).
 
 Taxonomy terms are created for shared fields like `repository` and `creators`. Other fields are indexed as a Node entity.
 

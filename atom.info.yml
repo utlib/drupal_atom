@@ -1,7 +1,7 @@
 name: 'AtoM Integration'
 type: module
 description: 'Syncs holdings in AtoM to Drupal.'
-core_version_requirement: '^8.8 || ^9'
+core_version_requirement: '^9 || ^10'
 package: UTL
 dependencies:
   - menu_ui

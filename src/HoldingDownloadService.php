@@ -122,6 +122,7 @@ class HoldingDownloadService implements HoldingDownloadServiceInterface
     public function queryHoldingNode($holding_id)
     {
         $query = \Drupal::entityQuery('node');
+        $query->accessCheck(FALSE);
         $query->condition('status', 1);
         $query->condition('type', 'holding');
         $query->condition('field_atom_id', $holding_id);
@@ -313,6 +314,7 @@ class HoldingDownloadService implements HoldingDownloadServiceInterface
     public function deleteStaleHoldings($nids) {
         // Get all holdings
         $query = \Drupal::entityQuery('node');
+        $query->accessCheck(FALSE);
         $query->condition('status', 1);
         $query->condition('type', 'holding');
         $dbnids = $query->execute();

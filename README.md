@@ -20,4 +20,4 @@ Click the Download button on the configuration page to immediately run the synch
 
 ## Example
 
-You can see an example of the module in use on U of T's Media Archives [Drupal website](https://media-archives.library.utoronto.ca/archival-collections) - the module enables an additional discovery point for the Media Archives [AtoM archival descriptions](https://discoverarchives.library.utoronto.ca/index.php/university-of-toronto-media-commons).
+You can see an example of the module in use on U of T's Media Commons Archives [Drupal website](https://media-archives.library.utoronto.ca/archival-collections) - the module enables an additional discovery point for the Media Commons Archives [AtoM archival descriptions](https://discoverarchives.library.utoronto.ca/index.php/university-of-toronto-media-commons).

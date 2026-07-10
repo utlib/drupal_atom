@@ -18,6 +18,6 @@ The module creates a Cron job which will run the synchronization at the specifie
 
 Click the Download button on the configuration page to immediately run the synchronization.
 
-## Example
+## Example [retired]
 
-You can see an example of the module in use on U of T's Media Commons Archives [Drupal website](https://media-archives.library.utoronto.ca/archival-collections) - the module enables an additional discovery point for the Media Commons Archives [AtoM archival descriptions](https://discoverarchives.library.utoronto.ca/index.php/university-of-toronto-media-commons).
+An example of the module in use on the former U of T Media Commons Archives [Drupal website](https://web.archive.org/web/20230000000000*/https://media-archives.library.utoronto.ca/archival-collections) is now only available via the Internet Archive Wayback Machine (as of July 2026). This website was retired by UTL ITS in Fall 2025. The module formerly enabled an additional "simple" discovery point for the Media Commons Archives [AtoM archival descriptions](https://discoverarchives.library.utoronto.ca/index.php/university-of-toronto-media-commons) on their unit's website. 
